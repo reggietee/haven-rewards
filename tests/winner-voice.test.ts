@@ -2,20 +2,19 @@ import { beforeEach, afterEach, expect, it, vi } from "vitest";
 const listeners = vi.hoisted(() => new Set<(value: boolean) => void>());
 vi.mock("../src/lib/audio", () => ({
   decodeAnnouncement: vi.fn(),
-  hasLocalVoice: () => false,
   isMuted: () => false,
   onMute: (fn: (value: boolean) => void) => {
     listeners.add(fn);
     return () => listeners.delete(fn);
   },
   playAnnouncement: vi.fn(),
-  playLocalAnnouncement: () => false,
   stopAnnouncement: vi.fn(),
 }));
 import {
   WinnerVoice,
   savedVoiceInput,
   EMPTY_VOICE,
+  voiceDiagnostic,
   type VoiceDependencies,
   type VoiceState,
 } from "../src/lib/winnerVoice";
@@ -64,8 +63,6 @@ beforeEach(async () => {
     fetch: vi.fn(async () => response()),
     decode: vi.fn(async () => buffer),
     play: vi.fn(() => true),
-    local: vi.fn(() => false),
-    localAvailable: () => false,
     stop: vi.fn(),
     muted: () => false,
     online: () => true,
@@ -101,27 +98,27 @@ it("uses only the persisted first name and recorded prize, never email, surname 
     /never-spoken|Private Surname|Forged/,
   );
   expect(deps.play).not.toHaveBeenCalled();
-  expect(state.caption).toBe("");
+  expect(state.speaking).toBe(false);
   vi.useFakeTimers();
   voice.land(prizeId);
   await vi.advanceTimersByTimeAsync(499);
   expect(deps.play).not.toHaveBeenCalled();
   await vi.advanceTimersByTimeAsync(1);
   expect(deps.play).toHaveBeenCalledWith(buffer, expect.any(Function));
-  expect(state.caption).toBe(announcementText(prizeId, "Élodie"));
+  expect(state.speaking).toBe(true);
 });
-it("deduplicates generation across repeated calls and reload, while replay reuses memory", async () => {
+it("deduplicates generation and playback across repeated landing calls and reload", async () => {
   voice.prepare(spinId, prizeId, d);
   voice.prepare(spinId, prizeId, d);
   await settled();
   vi.useFakeTimers();
   voice.land(prizeId);
   await vi.advanceTimersByTimeAsync(500);
-  voice.replay();
+  voice.land(prizeId);
   expect(deps.play).toHaveBeenCalledTimes(1);
   vi.mocked(deps.play).mock.calls[0][1]();
-  voice.replay();
-  expect(deps.play).toHaveBeenCalledTimes(2);
+  voice.land(prizeId);
+  expect(deps.play).toHaveBeenCalledTimes(1);
   expect(deps.fetch).toHaveBeenCalledTimes(1);
   voice.reset();
   vi.useRealTimers();
@@ -154,8 +151,7 @@ it.each(["muted", "offline", "missing authorization", "invalid name"])(
     expect(await d.units.toArray()).toEqual(before);
     vi.useRealTimers();
     expect(await d.spins.count()).toBe(1);
-    if (mode === "muted") expect(deps.local).not.toHaveBeenCalled();
-    if (mode === "invalid name") expect(state.caption).not.toContain("Ignore");
+    expect(deps.play).not.toHaveBeenCalled();
   },
 );
 it("discards late audio immediately at reveal and never plays it into the next entrant", async () => {
@@ -171,7 +167,8 @@ it("discards late audio immediately at reveal and never plays it into the next e
   vi.useFakeTimers();
   voice.land(prizeId);
   await vi.advanceTimersByTimeAsync(500);
-  expect(deps.local).toHaveBeenCalledOnce();
+  expect(deps.play).not.toHaveBeenCalled();
+  expect(voiceDiagnostic().status).toBe("late");
   voice.reset();
   finish(response());
   await vi.advanceTimersByTimeAsync(20000);
@@ -181,7 +178,7 @@ it("discards late audio immediately at reveal and never plays it into the next e
     (vi.mocked(deps.fetch).mock.calls[0][1]?.signal as AbortSignal).aborted,
   ).toBe(true);
 });
-it("reset clears the caption and replay buffer; muting cancels pending playback", async () => {
+it("reset releases the audio buffer; muting cancels pending playback", async () => {
   voice.prepare(spinId, prizeId, d);
   await settled();
   vi.useFakeTimers();
@@ -191,7 +188,7 @@ it("reset clears the caption and replay buffer; muting cancels pending playback"
   expect(deps.play).not.toHaveBeenCalled();
   voice.reset();
   expect(state).toEqual(EMPTY_VOICE);
-  voice.replay();
+  voice.land(prizeId);
   expect(deps.play).not.toHaveBeenCalled();
 });
 it("malformed or failed replies produce prompt fallback, never a retry or another award", async () => {
@@ -208,11 +205,8 @@ it("malformed or failed replies produce prompt fallback, never a retry or anothe
   voice.land(prizeId);
   await vi.advanceTimersByTimeAsync(500);
   expect(deps.decode).not.toHaveBeenCalled();
-  expect(deps.local).toHaveBeenCalledWith(
-    announcementText(prizeId, "Élodie"),
-    expect.any(Function),
-    expect.any(Function),
-  );
+  expect(deps.play).not.toHaveBeenCalled();
+  expect(voiceDiagnostic().status).toBe("unavailable");
   vi.useRealTimers();
   expect(await d.spins.count()).toBe(1);
   expect(deps.fetch).toHaveBeenCalledOnce();
@@ -236,5 +230,5 @@ it("a playback exception cannot escape into the result UI", async () => {
   voice.land(prizeId);
   await vi.advanceTimersByTimeAsync(500);
   expect(state.speaking).toBe(false);
-  expect(state.caption).toContain("Élodie");
+  expect(voiceDiagnostic().status).toBe("playback unavailable");
 });

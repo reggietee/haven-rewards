@@ -1,8 +1,10 @@
 export const EVENT_ID = "nfih-haven-2026-09-22";
 export const TIMEZONE = "America/Toronto";
+// Entry is open all event day; featured releases retain their immutable 3–7 p.m. schedule.
+export const ENTRY_START = "2026-09-22T00:00:00-04:00";
 export const START = "2026-09-22T15:00:00-04:00";
 export const END = "2026-09-22T19:00:00-04:00";
-export const RULES_VERSION = "2026-09-22.3";
+export const RULES_VERSION = "2026-09-22.4";
 export const CONSENT_VERSION = "2026-09-22.1";
 export const AGE_TEXT = "I am 18 or older and agree to the official rules.";
 export function matchesPublishedPrizes(prizes: Prize[]) {

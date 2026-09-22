@@ -8,7 +8,7 @@ Certain prizes are supplied by Zannes Law Firm and the Niagara Falls Innovation 
 
 ### 2. Contest period and location
 
-The Contest begins at 3:00 p.m. Eastern Time on September 22, 2026 and closes at 7:00 p.m. Eastern Time on September 22, 2026 (the **Contest Period**).
+The Contest opens for early entry at 12:00 a.m. Eastern Time on September 22, 2026 and closes at 7:00 p.m. Eastern Time on September 22, 2026 (the **Contest Period**).
 
 Entry is available in person at the Haven Workspace booth at NFIH Demo Day, 4551 Zimmerman Avenue, Niagara Falls, Ontario. The Sponsor's contest device is the official timekeeping device. No entries or spins will be accepted after the Contest closes.
 

@@ -89,33 +89,17 @@ it("uses one unlocked context, routes voice to master, smoothly ducks only effec
   expect(gains[0].gain.setTargetAtTime).toHaveBeenLastCalledWith(0, 1, 0.025);
   expect(audio.playAnnouncement(buffer, ended)).toBe(false);
 });
-it("never selects remote speech voices and cancels speech that cannot start promptly", async () => {
-  vi.useFakeTimers();
+it("stopping generated audio releases its source and restores the mix without invoking browser speech", async () => {
   const audio = await import("../src/lib/audio");
   audio.unlockAudio();
-  const failed = vi.fn();
-  expect(audio.playLocalAnnouncement("Approved fixture", vi.fn(), failed)).toBe(
-    true,
+  audio.playAnnouncement(
+    await audio.decodeAnnouncement(new ArrayBuffer(4)),
+    vi.fn(),
   );
-  await vi.advanceTimersByTimeAsync(350);
-  expect(window.speechSynthesis.cancel).toHaveBeenCalled();
-  expect(failed).toHaveBeenCalledOnce();
-  window.speechSynthesis.getVoices = () => [
-    { localService: false, lang: "en-US" } as SpeechSynthesisVoice,
-  ];
-  expect(audio.hasLocalVoice()).toBe(false);
-  expect(audio.playLocalAnnouncement("Approved fixture", vi.fn(), failed)).toBe(
-    false,
-  );
-});
-it("local speech shares mute intent, cannot overlap, and restores the effect mix on cancellation", async () => {
-  const audio = await import("../src/lib/audio");
-  audio.unlockAudio();
-  audio.playLocalAnnouncement("Approved fixture", vi.fn(), vi.fn());
-  utterances[0].onstart();
-  expect(gains[1].gain.setTargetAtTime).toHaveBeenLastCalledWith(0.18, 1, 0.08);
-  audio.setMuted(true);
-  expect(window.speechSynthesis.cancel).toHaveBeenCalledOnce();
+  audio.stopAnnouncement();
+  expect(sources[0].stop).toHaveBeenCalledOnce();
+  expect(sources[0].disconnect).toHaveBeenCalledOnce();
+  expect(sources[0].onended).toBeNull();
+  expect(window.speechSynthesis.speak).not.toHaveBeenCalled();
   expect(gains[1].gain.setTargetAtTime).toHaveBeenLastCalledWith(1, 1, 0.18);
-  expect(utterances[0].onstart).toBeNull();
 });

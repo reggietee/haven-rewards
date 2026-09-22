@@ -209,6 +209,27 @@ describe("immutable schedule", () => {
   });
 });
 describe("entry and award transactions", () => {
+  it("accepts early event-day entries without changing the featured schedule and still closes at 7 p.m.", async () => {
+    const schedule = await db.schedules.toArray();
+    const units = await db.units.toArray();
+    const early = Date.parse("2026-09-22T10:00:00-04:00");
+    const e = await enter(person(), db, early);
+    const spin = await award(e.id, db, early);
+    expect(spin.prizeId).toBe("day");
+    expect(await db.schedules.toArray()).toEqual(schedule);
+    expect(await db.units.toArray()).toEqual(units);
+    await complete(db);
+    await expect(enter(person("closed@example.com"), db, end)).rejects.toThrow(
+      "7 p.m.",
+    );
+    await expect(
+      enter(
+        person("yesterday@example.com"),
+        db,
+        Date.parse("2026-09-21T23:59:59-04:00"),
+      ),
+    ).rejects.toThrow("7 p.m.");
+  });
   it("falls back before any release and stores a unique prize code", async () => {
     await db.units
       .toCollection()
@@ -294,10 +315,10 @@ describe("entry and award transactions", () => {
   });
   it("disables new entries and spins at exactly 7 p.m.", async () => {
     const e = await enter(person(), db, end - 1000);
-    await expect(award(e.id, db, end)).rejects.toThrow("3–7");
+    await expect(award(e.id, db, end)).rejects.toThrow("7 p.m.");
     await complete(db);
     await expect(enter(person("late@example.com"), db, end)).rejects.toThrow(
-      "3–7",
+      "7 p.m.",
     );
     expect(await db.spins.count()).toBe(0);
   });

@@ -1,5 +1,16 @@
 # Verification record — September 22, 2026
 
+## Selected-voice-only playback and early entry follow-up
+
+This revision supersedes the caption/replay and system-speech behavior described in the historical checks below.
+
+- Removed the result caption panel, replay button, replay controller method and browser speech-synthesis path. Only audio generated using the server's configured `ELEVENLABS_VOICE_ID` can speak. Missing/late/unplayable audio leaves celebration effects and the visible prize intact. Diagnostics retain the failure reason.
+- Early live entry opens September 22 at midnight Eastern; the 7 p.m. cutoff, immutable 3–7 p.m. release schedule, inventory and duplicate checks remain unchanged. Early live spins receive the day-pass fallback and count as real entries. Rules proof is versioned `2026-09-22.4`.
+- Production build and 55 unit tests pass, including 250-spin inventory simulation, an exact configured-voice URL assertion, no device speech, one-shot playback, cleanup/mute, early entry without schedule changes, and the exact 7 p.m. cutoff.
+- Browser bundle scan: no speech synthesis, provider API-key environment variable, replay label or caption CSS remains.
+- Visual result inspection at 1112 × 834 in Chromium and WebKit confirms the prize, claim, code and Done fit comfortably without the removed panel. See [current result](qa/voice-result-no-caption.png).
+
+
 ## Winner voice, manual result close and required consent revision
 
 - Strict TypeScript and production/PWA build pass; **55 Vitest tests pass** across nine files, including the 250-spin simulation.

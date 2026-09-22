@@ -136,6 +136,9 @@ it("only sends approved text and voice settings upstream, never entry metadata o
     "text",
     "voice_settings",
   ]);
+  expect(new URL(String(url)).pathname).toBe(
+    `/v1/text-to-speech/${process.env.ELEVENLABS_VOICE_ID}`,
+  );
   expect(String(url)).not.toContain("Élodie");
   expect(options.body).not.toContain(payload.entryId);
   expect(r.headers.get("Cache-Control")).toBe("private, no-store");

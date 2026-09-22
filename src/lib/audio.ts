@@ -2,8 +2,6 @@ let context: AudioContext | undefined;
 let master: GainNode | undefined;
 let effects: GainNode | undefined;
 let voiceSource: AudioBufferSourceNode | undefined;
-let localUtterance: SpeechSynthesisUtterance | undefined;
-let speechTimer: ReturnType<typeof setTimeout> | undefined;
 const muteListeners = new Set<(muted: boolean) => void>();
 let muted = localStorage.getItem("haven-muted") === "true";
 export function setMuted(value: boolean) {
@@ -132,8 +130,6 @@ export async function decodeAnnouncement(bytes: ArrayBuffer) {
   return buffer;
 }
 export function stopAnnouncement() {
-  clearTimeout(speechTimer);
-  speechTimer = undefined;
   if (voiceSource) {
     voiceSource.onended = null;
     try {
@@ -147,18 +143,6 @@ export function stopAnnouncement() {
       /* Already disconnected. */
     }
     voiceSource = undefined;
-  }
-  if (localUtterance) {
-    localUtterance.onstart =
-      localUtterance.onend =
-      localUtterance.onerror =
-        null;
-    localUtterance = undefined;
-    try {
-      window.speechSynthesis?.cancel();
-    } catch {
-      /* System speech unavailable. */
-    }
   }
   duckEffects(false);
 }
@@ -178,60 +162,5 @@ export function playAnnouncement(buffer: AudioBuffer, ended: () => void) {
   };
   duckEffects(true);
   source.start();
-  return true;
-}
-function localVoice() {
-  if (!("speechSynthesis" in window)) return;
-  const voices = window.speechSynthesis
-    .getVoices()
-    .filter((v) => v.localService && /^en(?:-|_)/i.test(v.lang));
-  return (
-    voices.find((v) => /^en-CA$/i.test(v.lang)) ??
-    voices.find((v) => /^en-US$/i.test(v.lang)) ??
-    voices[0]
-  );
-}
-export function hasLocalVoice() {
-  try {
-    return !!localVoice();
-  } catch {
-    return false;
-  }
-}
-/** Only explicitly on-device voices; never the browser's possibly remote default. */
-export function playLocalAnnouncement(
-  text: string,
-  ended: () => void,
-  failed: () => void,
-) {
-  stopAnnouncement();
-  const voice = localVoice();
-  if (!voice || muted) return false;
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.voice = voice;
-  utterance.lang = voice.lang;
-  utterance.rate = 1.02;
-  // System speech cannot enter a Web Audio graph; mirror master mute/volume and cancel on mute.
-  utterance.volume = muted ? 0 : 1;
-  localUtterance = utterance;
-  const finish = (failure: boolean) => {
-    if (localUtterance !== utterance) return;
-    stopAnnouncement();
-    if (failure) failed();
-    else ended();
-  };
-  utterance.onstart = () => {
-    clearTimeout(speechTimer);
-    if (localUtterance !== utterance || muted) {
-      stopAnnouncement();
-      return;
-    }
-    duckEffects(true);
-    speechTimer = setTimeout(() => finish(true), 20000);
-  };
-  utterance.onend = () => finish(false);
-  utterance.onerror = () => finish(true);
-  speechTimer = setTimeout(() => finish(true), 350); // Never leave delayed speech in Safari's queue.
-  window.speechSynthesis.speak(utterance);
   return true;
 }

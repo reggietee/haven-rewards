@@ -415,3 +415,26 @@ test("home pairs entry with one wheel; constrained height preserves reachable co
     fullPage: true,
   });
 });
+
+test("live entry opens before 3 p.m. and closes at 7 p.m. without regenerating its schedule", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.addInitScript(() => {
+    Date.now = () => Date.parse("2026-09-22T10:00:00-04:00");
+  });
+  await page.goto("/");
+  await initialize(page);
+  await expect(
+    page.getByRole("button", { name: "Enter & Spin" }),
+  ).toBeEnabled();
+  const schedule = await readStore(page, "schedules");
+  await page.evaluate(() => {
+    Date.now = () => Date.parse("2026-09-22T19:00:00-04:00");
+  });
+  await expect(
+    page.getByRole("button", { name: /Enter & Spin/ }),
+  ).toBeDisabled();
+  await expect(page.getByText("The contest has closed")).toBeVisible();
+  expect(await readStore(page, "schedules")).toEqual(schedule);
+});

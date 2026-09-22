@@ -25,14 +25,14 @@ The implementation uses the [official complete-speech endpoint](https://elevenla
 4. A durable `voiceAttempts` marker is reserved before the request. There is at most one paid-generation attempt per entry from this kiosk, even after reload. Failures do not retry. This separate Dexie v2 table does not change any prize, schedule, entry, award or sync record and is not exported/synced.
 5. The server request has a 5.5-second deadline; the client has a 6-second deadline. The normal wheel sequence is 6.8 seconds. The result appears on schedule regardless. Reduced motion retains voice, but its 1.1-second spin gives the provider less time.
 6. At result reveal, the controller freezes its audio choice and aborts pending generation. Playback starts 500 ms after the result mounts. Late audio is discarded.
-7. If no personalized audio is ready, use an explicitly local English system voice if available; if it cannot start within 350 ms, cancel it. Otherwise the caption and original effects remain. No redistributable generic voice assets are supplied, so the optional prerecorded fallback is skipped. Never select a remote browser voice or wait for voices to load during reveal.
-8. Web Audio effects duck smoothly to 18% during speech and return afterward. One shared AudioContext and master mute are used for generated audio. Safari system speech cannot be routed into Web Audio; its volume mirrors the app's mute setting and muting immediately cancels it.
-9. **Hear it again** uses the current decoded buffer or the local system voice, without a server request. Repeated taps cannot overlap speech. Muted playback has no replay button.
-10. Done, backgrounding or unmount cancels timers, fetch and speech, releases the AudioBuffer, and clears the caption. No object URLs are created. Personalized audio is never written to IndexedDB, Sheets, CSV, service-worker caches or public files. Reload shows the saved prize without regenerating personalized audio.
+7. If personalized audio is unavailable, late, or fails to play, retain the existing celebration sounds and visible prize. **Never substitute the browser/device default voice.** Individual prize previews have no saved entrant and play effects only; use **Open test entry flow** with a new fictional entrant to test the selected ElevenLabs voice.
+8. Web Audio effects duck smoothly to 18% during speech and return afterward. One shared AudioContext and master mute are used. Speech plays once, with no replay button or additional caption panel.
+9. Done, backgrounding or unmount cancels timers, fetch and audio, releases the AudioBuffer and clears the first name from controller memory. No object URLs are created. Personalized audio is never written to IndexedDB, Sheets, CSV, service-worker caches or public files. Reload shows the saved prize without regenerating personalized audio.
+10. The booth panel preserves diagnostics such as unavailable, late, offline and playback unavailable instead of masking them with a generic fallback status. Configuration readiness means variables exist, not that billing or voice access is valid.
 
 ## Endpoint and privacy boundaries
 
-The endpoint accepts a strict three-field schema, 1 KB body limit, known current prize IDs, a conservative name grammar, same-origin POSTs and a signed PIN-issued kiosk grant. The server constructs speech from approved templates in `src/lib/announcements.ts`; client-supplied text, value, tier, email and prize-name fields are rejected. Names normalize to NFC, lose controls, contain only letters/marks and common name separators, and have at most 40 characters/three name components. Unsafe or sentence-like names still enter the contest; they simply receive generic speech/captions.
+The endpoint accepts a strict three-field schema, 1 KB body limit, known current prize IDs, a conservative name grammar, same-origin POSTs and a signed PIN-issued kiosk grant. The server constructs speech from approved templates in `src/lib/announcements.ts`; client-supplied text, value, tier, email and prize-name fields are rejected. Names normalize to NFC, lose controls, contain only letters/marks and common name separators, and have at most 40 characters/three name components. Unsafe or sentence-like names still enter the contest; they receive the normal visual result and celebration effects without speech.
 
 The authoritative entry database is on the offline kiosk, not Vercel. The server validates kiosk authorization and the approved prize ID; it cannot independently look up an offline entry. The trusted kiosk reads the actual persisted spin/entrant. Voice generation cannot call or mutate the prize engine.
 
@@ -42,7 +42,7 @@ Responses are private/no-store, including Vercel CDN headers. Server errors are 
 
 ## Live-provider verification
 
-On September 22, a fictional entrant in the deployed app’s isolated test flow received a real ElevenLabs grand-prize announcement. It arrived in approximately **1.4 seconds**, before the wheel stopped; the decoded clip was **7.85 seconds** long. The exact caption matched, replay made no extra request, mute stopped playback, and Done cleared the name and audio. One spin and one generation marker were recorded; real event inventory was untouched. No personalized recording was saved.
+On September 22, a fictional entrant in the deployed app’s isolated test flow received a real ElevenLabs grand-prize announcement. It arrived in approximately **1.4 seconds**, before the wheel stopped; the decoded clip was **7.85 seconds** long. The approved announcement matched the recorded prize, mute stopped playback, and Done cleared the name and audio. One spin and one generation marker were recorded; real event inventory was untouched. No personalized recording was saved.
 
 An initial HTTP 402 was resolved through the account’s billing configuration. If it recurs, check credits, billing and the selected voice’s API eligibility using the [provider error reference](https://elevenlabs.io/docs/eleven-api/resources/errors). The readiness badge confirms settings are present, not that a provider account is funded. After resolving a provider issue, use a **new fictional test entry**, because the app intentionally does not regenerate speech for an entry already attempted.
 
@@ -51,7 +51,7 @@ An initial HTTP 402 was resolved through the account’s billing configuration. 
 - Unlock controls online; confirm Winner announcements says configured.
 - Use **Open test entry flow**, a fictional first name and test email. This uses separate test inventory and may incur one TTS request per new test entry.
 - With sound on, confirm the name/prize are correct, pronunciation is clear, impact precedes speech and background effects remain quieter during speech.
-- Replay twice, mute during replay, press Done mid-speech, and confirm no speech carries into the next guest.
-- Test a second fictional entry offline and a muted entry; both should award normally. Browser local voices vary by installed iPad voice downloads. Silence plus a clear caption is an intentional fallback.
+- Mute during the announcement, press Done mid-speech, and confirm no speech carries into the next guest. There is no replay or caption box.
+- Test a second fictional entry offline and a muted entry; both should award normally. No device voice should substitute for ElevenLabs; the visible prize and original effects are the fallback.
 - Verify Safari and the installed PWA on the physical third-generation iPad Air, speaker volume outdoors, and Guided Access. Desktop WebKit emulation cannot establish physical iPad audio quality or autoplay reliability.
 - Keep any real-credential test recordings transient. Never commit personalized recordings or logs containing names/tokens.

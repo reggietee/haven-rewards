@@ -18,6 +18,7 @@ import {
   matchesPublishedPrizes,
   RULES_VERSION,
   START,
+  ENTRY_START,
   TIMEZONE,
   type Prize,
 } from "../config";
@@ -214,8 +215,8 @@ function checkState(
 ) {
   if (device.retired || device.paused)
     throw new Error("Spins are paused. Please ask booth staff.");
-  if (now < Date.parse(START) || now >= Date.parse(END))
-    throw new Error("Spins are open September 22, 3–7 p.m. Eastern.");
+  if (now < Date.parse(ENTRY_START) || now >= Date.parse(END))
+    throw new Error("Spins are open September 22 until 7 p.m. Eastern.");
   if (device.lastClock && now < device.lastClock - 60000)
     throw new Error("Please ask booth staff to check the device clock.");
 }

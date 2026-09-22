@@ -6,7 +6,50 @@ const pin = readFileSync("OPERATOR_ACCESS.local.txt", "utf8").match(
   /PIN: (\d+)/,
 )![1];
 const audio = readFileSync("tests/fixtures/voice-tone.mp3").toString("base64");
+declare global {
+  interface Window {
+    voiceChecks: {
+      plays: number;
+      stops: number;
+      systemSpeech: number;
+      resultVisible: boolean;
+    };
+  }
+}
+async function instrument(page: Page) {
+  await page.addInitScript(() => {
+    window.voiceChecks = {
+      plays: 0,
+      stops: 0,
+      systemSpeech: 0,
+      resultVisible: false,
+    };
+    const start = AudioBufferSourceNode.prototype.start;
+    const stop = AudioBufferSourceNode.prototype.stop;
+    const isVoice = (source: AudioBufferSourceNode) =>
+      !!source.buffer &&
+      source.buffer.duration > 1.9 &&
+      source.buffer.duration < 2.3;
+    AudioBufferSourceNode.prototype.start = function (...args) {
+      if (isVoice(this)) {
+        window.voiceChecks.plays++;
+        window.voiceChecks.resultVisible =
+          !!document.querySelector(".prize-code");
+      }
+      return start.apply(this, args);
+    };
+    AudioBufferSourceNode.prototype.stop = function (...args) {
+      if (isVoice(this)) window.voiceChecks.stops++;
+      return stop.apply(this, args);
+    };
+    if (window.speechSynthesis)
+      window.speechSynthesis.speak = () => {
+        window.voiceChecks.systemSpeech++;
+      };
+  });
+}
 async function start(page: Page) {
+  await instrument(page);
   await page.goto("/");
   await expect(async () => {
     if (!(await page.getByLabel("Operator PIN").isVisible()))
@@ -48,7 +91,7 @@ async function saved(page: Page, table: string) {
     return rows;
   }, table);
 }
-test("personalized speech uses saved entry during spin, lands before voice, replays once from memory and clears on manual Done", async ({
+test("configured voice plays once after reveal without caption or replay and clears on manual Done", async ({
   page,
 }, info) => {
   test.setTimeout(90000);
@@ -93,37 +136,24 @@ test("personalized speech uses saved entry during spin, lands before voice, repl
   await expect.poll(() => spinRecorded).toBe(true);
   await expect(page.locator(".winner-caption")).toHaveCount(0);
   await expect(page.getByText("YOUR POTENTIAL PRIZE CODE")).toBeVisible();
-  await expect(page.locator(".winner-announcement")).toHaveAttribute(
-    "data-speaking",
-    "true",
+  await expect
+    .poll(() => page.evaluate(() => window.voiceChecks.plays))
+    .toBe(1);
+  expect(await page.evaluate(() => window.voiceChecks.resultVisible)).toBe(
+    true,
   );
-  await expect(page.locator(".winner-caption")).toHaveText(spoken);
   await expect(
-    page.getByRole("button", { name: "Hear your prize announcement again" }),
-  ).toBeDisabled();
+    page.locator(".winner-announcement, .winner-caption, .voice-replay"),
+  ).toHaveCount(0);
+  expect(calls).toBe(1);
+  await page.getByRole("button", { name: "Mute sound" }).click();
+  expect(await page.evaluate(() => window.voiceChecks.stops)).toBe(1);
+  expect(await page.evaluate(() => window.voiceChecks.systemSpeech)).toBe(0);
   await page.screenshot({
     path: `test-results/${info.project.name}-voice-result.png`,
     fullPage: true,
   });
-  await expect(
-    page.getByRole("button", { name: "Hear your prize announcement again" }),
-  ).toBeEnabled();
-  await page
-    .getByRole("button", { name: "Hear your prize announcement again" })
-    .click();
-  await expect(page.locator(".winner-announcement")).toHaveAttribute(
-    "data-speaking",
-    "true",
-  );
-  expect(calls).toBe(1);
-  await page.getByRole("button", { name: "Mute sound" }).click();
-  await expect(
-    page.getByRole("button", { name: "Hear your prize announcement again" }),
-  ).toHaveCount(0);
-  await expect(page.locator(".winner-announcement")).toHaveAttribute(
-    "data-speaking",
-    "false",
-  );
+
   await page.getByRole("button", { name: /Done/ }).click();
   await expect(page.locator(".winner-caption")).toHaveCount(0);
   await expect(page.getByText(/Élodie/)).toHaveCount(0);
@@ -206,7 +236,8 @@ test("missing credentials and offline mode still show and retain the recorded pr
   await page.getByRole("button", { name: "SPIN THE WHEEL" }).click();
   await expect(page.getByText("YOUR POTENTIAL PRIZE CODE")).toBeVisible();
   await expect.poll(() => statuses).toContain(503);
-  await expect(page.locator(".winner-caption")).toContainText("Élodie");
+  await expect(page.locator(".winner-caption")).toHaveCount(0);
+  expect(await page.evaluate(() => window.voiceChecks.systemSpeech)).toBe(0);
   await page.getByRole("button", { name: /Done/ }).click();
   await page
     .getByRole("textbox", { name: "First name", exact: true })
@@ -224,7 +255,8 @@ test("missing credentials and offline mode still show and retain the recorded pr
   await context.setOffline(true);
   await page.getByRole("button", { name: "SPIN THE WHEEL" }).click();
   await expect(page.getByText("YOUR POTENTIAL PRIZE CODE")).toBeVisible();
-  await expect(page.locator(".winner-caption")).toContainText("Maya");
+  await expect(page.locator(".winner-caption")).toHaveCount(0);
+  expect(await page.evaluate(() => window.voiceChecks.systemSpeech)).toBe(0);
   expect(statuses).toEqual([503]);
   expect(await saved(page, "spins")).toHaveLength(2);
   await page.getByRole("button", { name: /Done/ }).click();

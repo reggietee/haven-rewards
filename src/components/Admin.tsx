@@ -199,7 +199,7 @@ export default function Admin({ onClose, onPreview, onTest, cached }: Props) {
                 <dd>
                   {ready.voiceConfigured
                     ? "Personalized voice configured"
-                    : "Local speech / captions"}
+                    : "Celebration sounds only"}
                 </dd>
                 <dd>Last voice status: {voiceDiagnostic().status}</dd>
               </div>
@@ -237,7 +237,7 @@ export default function Admin({ onClose, onPreview, onTest, cached }: Props) {
               })}{" "}
               Eastern ·{" "}
               {now < Date.parse(START)
-                ? "Before event"
+                ? "Early entry · featured releases begin at 3 p.m."
                 : now >= Date.parse(END)
                   ? "Event closed"
                   : `Hour ${Math.floor((now - Date.parse(START)) / 3600000) + 1} of 4`}

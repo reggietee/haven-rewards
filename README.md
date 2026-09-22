@@ -52,7 +52,7 @@ Portrait stacks the form, wheel and gallery in that order. Keyboard contraction 
 1. Install from the final temporary Vercel origin on the iPad using Safari → Share → Add to Home Screen. Open that installed app; Safari and installed PWA storage may differ, so do all real initialization and entry in the installed app.
 2. Authenticate the operator before going offline. Verify app shell cached, IndexedDB ready, audio, available storage and accurate automatic device time.
 3. Preview all tiers in test mode, then exit test mode. Verify the official rules and prize configuration match. Obtain Haven’s final legal review; the editable source is `src/rules.md` and review notes are `docs/RULES_REVIEW.md`.
-4. Initialize the real event **once** on this device. It is safe to initialize before 3 p.m.; real entries/spins remain gated to `2026-09-22T15:00:00-04:00` through (excluding) `2026-09-22T19:00:00-04:00`.
+4. Initialize the real event **once** on this device. It is safe to initialize before 3 p.m.; early live entries/spins are enabled from `2026-09-22T00:00:00-04:00` through (excluding) `2026-09-22T19:00:00-04:00`.
 5. Close controls, enable landscape orientation lock, then iPad Settings → Accessibility → Guided Access. Configure a separate Guided Access passcode and triple-click the Home button to start. Disable unwanted hardware buttons/motion, retain touch and keyboard access, and avoid a short session time limit. The app does not depend on the Fullscreen API, which varies on iPad Safari.
 6. Export Entries, Consents, Spins, Inventory and Audit during the event and again at close. A failed sync never blocks a spin. Do not clear site data, uninstall the app, redeploy a different origin or update the service worker mid-event.
 
@@ -108,4 +108,4 @@ Font license notices are included in `public/licenses`. Consents CSV exports inc
 
 ## Spoken announcements and manual results
 
-See [VOICE_SETUP.md](VOICE_SETUP.md) for optional ElevenLabs variables, protected endpoint, offline fallbacks, privacy and iPad checks. Results now remain on screen until staff presses **Done**. The existing 90-second timeout applies only to an abandoned pre-spin ready screen. Voice generation cannot affect the recorded prize, and replay never generates another paid request.
+See [VOICE_SETUP.md](VOICE_SETUP.md) for optional ElevenLabs variables, protected endpoint, offline fallbacks, privacy and iPad checks. Results now remain on screen until staff presses **Done**. The existing 90-second timeout applies only to an abandoned pre-spin ready screen. Voice generation cannot affect the recorded prize. Only the configured ElevenLabs voice is played, once; there is no device-voice substitution, replay button or caption box. Featured release moments remain at 3–7 p.m.; early live spins receive the day-pass fallback and count as real entries.

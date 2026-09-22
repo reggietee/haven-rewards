@@ -12,7 +12,7 @@ import {
   WHEEL_PRIZES,
   FEATURED_COUNT,
   matchesPublishedPrizes,
-  START,
+  ENTRY_START,
   currency,
   type Prize,
 } from "./config";
@@ -26,7 +26,7 @@ import {
   spinSound,
   unlockAudio,
 } from "./lib/audio";
-import { EMPTY_VOICE, WinnerVoice } from "./lib/winnerVoice";
+import { WinnerVoice } from "./lib/winnerVoice";
 import { VOICE_PRIVACY } from "./lib/announcements";
 import { Brand, Sponsors } from "./components/Brand";
 import { PrizeVault } from "./components/PrizeVault";
@@ -54,10 +54,9 @@ export default function App() {
     [now, setNow] = useState(Date.now()),
     [dbReady, setDbReady] = useState(false),
     [online, setOnline] = useState(navigator.onLine);
-  const [voiceState, setVoiceState] = useState({ ...EMPTY_VOICE });
   const voice = useRef<WinnerVoice | null>(null);
   useEffect(() => {
-    const controller = new WinnerVoice(setVoiceState);
+    const controller = new WinnerVoice();
     voice.current = controller;
     return () => {
       controller.dispose();
@@ -109,7 +108,7 @@ export default function App() {
     matchesPublishedPrizes(device.prizes) &&
     !device?.paused &&
     !device?.retired &&
-    activeTime >= Date.parse(START) &&
+    activeTime >= Date.parse(ENTRY_START) &&
     activeTime < Date.parse(END);
   const remaining = schedule?.length
     ? (units?.filter((u) => !u.awardedTo && !u.disabled).length ??
@@ -518,8 +517,8 @@ export default function App() {
                         <small>
                           {!test && now >= Date.parse(END)
                             ? "The contest has closed"
-                            : !test && now < Date.parse(START)
-                              ? "Opens September 22 · 3–7 p.m."
+                            : !test && now < Date.parse(ENTRY_START)
+                              ? "Opens September 22 · closes 7 p.m."
                               : "Please ask booth staff to open the wheel"}
                         </small>
                       )}
@@ -620,34 +619,7 @@ export default function App() {
                 {prize.sponsor !== "haven" && (
                   <Brand name={prize.sponsor} className="result-sponsor" />
                 )}
-                {voiceState.caption && (
-                  <div
-                    className="winner-announcement"
-                    data-speaking={voiceState.speaking}
-                  >
-                    <p
-                      className="winner-caption"
-                      aria-live="polite"
-                      aria-atomic="true"
-                    >
-                      {voiceState.caption}
-                    </p>
-                    {!muted && voiceState.replay && (
-                      <button
-                        type="button"
-                        className="voice-replay"
-                        aria-label="Hear your prize announcement again"
-                        disabled={voiceState.speaking}
-                        onClick={() => {
-                          unlockAudio();
-                          voice.current?.replay();
-                        }}
-                      >
-                        {voiceState.speaking ? "Speaking…" : "Hear it again"}
-                      </button>
-                    )}
-                  </div>
-                )}
+
                 <p className="prize-claim">{prize.claim}</p>
                 <div className="prize-code">
                   <span>
@@ -691,7 +663,7 @@ export default function App() {
           live={
             units !== undefined &&
             !!schedule?.length &&
-            (test || now >= Date.parse(START))
+            (test || now >= Date.parse(ENTRY_START))
           }
           reduced={reduced}
           closed={!test && now >= Date.parse(END)}

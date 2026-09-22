@@ -19,14 +19,14 @@
 - [ ] In test mode, run an entry and preview tiers 1–4 plus grand. Check wheel labels, pointer landing, touch targets, landscape fit, keyboard scrolling, speaker volume and mute/unmute on the physical third-generation iPad Air.
 - [ ] Turn on Airplane Mode/Wi-Fi off and confirm test entry, spin, rules and reload work. Reconnect. No real inventory should have changed.
 - [ ] Exit test mode. Confirm the TEST banner disappears. Check the pool is 53 finite units, $7,980, plus the unlimited $25 pass.
-- [ ] Initialize real event once. Confirm the immutable schedule exists and Inventory/Audit sync succeeds if configured. Initialization may occur before 3 p.m.; entry is time-gated.
+- [ ] Initialize real event once. Confirm the immutable schedule exists and Inventory/Audit sync succeeds if configured. Early entry is enabled all September 22; featured releases stay at 3–7 p.m. Early live spins count as real entries and receive the day-pass fallback.
 - [ ] Export the initial Inventory and Audit files. Store copies safely off the device without changing site data.
 - [ ] Lock landscape orientation. Set brightness for tent conditions and reduce auto-lock. Use reliable power.
 - [ ] Start Guided Access (triple-click Home). Retain touch and keyboard. Disable accidental exit hardware controls as appropriate. Staff must know how to exit it.
 
 ## During 3–7 p.m. Eastern
 
-- [ ] With voice configured, test a fictional entry online, replay, mute and Done during speech. Test offline fallback. See VOICE_SETUP.md.
+- [ ] With voice configured, use the isolated test entry flow with a fictional name, then check mute and Done during speech. Test offline fallback. See VOICE_SETUP.md.
 - [ ] Confirm both consent checkboxes start unchecked. Haven.fm consent is required for new entries; verify its wording begins “Yes, add me…”.
 - [ ] Keep the installed app foregrounded. Check the first real entry, one-tap spin and manual Done reset (the result stays open until staff taps Done).
 - [ ] No previous name, email or prize code should remain visible before the next entrant.

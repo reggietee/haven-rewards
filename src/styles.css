@@ -1934,51 +1934,19 @@ td input {
   display: block;
   margin-top: 6px;
 }
-.winner-announcement {
-  border-left: 3px solid #98742f;
-  padding: 10px 14px;
-  background: #e9dfca;
-  border-radius: 0 8px 8px 0;
-}
-.winner-caption {
-  font-size: 17px;
-  line-height: 1.4;
-  font-weight: 600;
-  color: #302735;
-}
-.voice-replay {
-  min-height: 56px;
-  margin-top: 8px;
-  padding: 8px 16px;
-  color: #302735;
-  background: transparent;
-  border: 1px solid #98742f;
-  border-radius: 6px;
-  font-weight: 700;
-}
-.voice-replay:disabled {
-  opacity: 0.65;
-}
-/* Keep Done reachable; the caption gets its own column space beside the wheel on landscape. */
 .screen-result .result-content {
   gap: 10px;
-}
-.screen-result .winner-announcement {
-  margin-top: 2px;
 }
 @media (min-width: 900px) and (min-height: 650px) {
   .screen-result .result-content h2 {
     font-size: 29px;
-  }
-  .screen-result .winner-caption {
-    font-size: 16px;
   }
   .screen-result .prize-code {
     padding-block: 8px;
   }
 }
 
-/* Keep the cinematic logo reveal off the spoken result caption on landscape. */
+/* Keep the cinematic logo reveal over the wheel, clear of the prize details on landscape. */
 @media (min-width: 900px) and (orientation: landscape) {
   .screen-result .grand-wordmark {
     right: 46%;

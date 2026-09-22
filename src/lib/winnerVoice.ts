@@ -2,30 +2,24 @@ import { db, type HavenDB } from "./db";
 import { announcementText, spokenName } from "./announcements";
 import {
   decodeAnnouncement,
-  hasLocalVoice,
   isMuted,
   onMute,
   playAnnouncement,
-  playLocalAnnouncement,
   stopAnnouncement,
 } from "./audio";
 export type VoiceState = {
-  caption: string;
   speaking: boolean;
-  replay: boolean;
 };
 export const EMPTY_VOICE: VoiceState = {
-  caption: "",
   speaking: false,
-  replay: false,
 };
 export type VoiceDiagnostic =
   | "idle"
   | "preparing"
   | "ready"
   | "personalized"
-  | "local speech"
-  | "caption only"
+  | "playback unavailable"
+  | "preview only"
   | "muted"
   | "offline"
   | "unsafe name"
@@ -68,8 +62,6 @@ const defaults = {
   fetch: (...args: Parameters<typeof fetch>) => fetch(...args),
   decode: decodeAnnouncement,
   play: playAnnouncement,
-  local: playLocalAnnouncement,
-  localAvailable: hasLocalVoice,
   stop: stopAnnouncement,
   muted: isMuted,
   online: () => navigator.onLine,
@@ -92,7 +84,7 @@ export class WinnerVoice {
   private state = { ...EMPTY_VOICE };
   private unsubscribe: () => void;
   constructor(
-    private update: (state: VoiceState) => void,
+    private update: (state: VoiceState) => void = () => {},
     private deps = defaults,
   ) {
     this.unsubscribe = onMute((value) => {
@@ -200,7 +192,7 @@ export class WinnerVoice {
       const raw = await response.text();
       if (raw.length > 700000) throw 0;
       const result = JSON.parse(raw);
-      // Caption is exact approved server speech, never arbitrary server/provider error text.
+      // Accept only exact approved speech, never arbitrary server/provider error text.
       if (
         result.text !== session.text ||
         result.mimeType !== "audio/mpeg" ||
@@ -240,61 +232,34 @@ export class WinnerVoice {
     session.controller.abort();
     clearTimeout(session.requestTimer);
     if (!session.buffer && diagnostic.status === "preparing") report("late");
-    // Freeze the choice now. Audio arriving after reveal can never interrupt this or the next guest.
-    this.publish({
-      caption: session.text,
-      speaking: false,
-      replay: !!session.buffer || this.deps.localAvailable(),
-    });
+    // Never substitute a device voice for the operator's selected ElevenLabs voice.
+    if (!session.spinId) report("preview only");
     session.timer = setTimeout(() => {
-      if (this.active === session) this.play();
-    }, 500);
-  }
-  replay() {
-    if (!this.state.speaking && this.state.replay && this.active?.landed)
-      this.play();
-  }
-  private play() {
-    try {
-      this.playReady();
-    } catch {
+      if (
+        this.active !== session ||
+        this.deps.muted() ||
+        this.deps.hidden() ||
+        !session.buffer
+      )
+        return;
       try {
-        this.deps.stop();
+        if (
+          this.deps.play(session.buffer, () => {
+            if (this.active === session) this.publish({ speaking: false });
+          })
+        ) {
+          this.publish({ speaking: true });
+          report("personalized");
+        } else report("playback unavailable");
       } catch {
-        /* Silent fallback remains safe. */
+        this.deps.stop();
+        this.publish({ speaking: false });
+        report("playback unavailable");
       }
-      if (this.active)
-        this.publish({
-          caption: this.active.text,
-          speaking: false,
-          replay: false,
-        });
-      report("caption only");
-    }
-  }
-  private playReady() {
-    const session = this.active;
-    if (!session?.landed || this.deps.muted() || this.deps.hidden()) return;
-    clearTimeout(session.timer);
-    const ended = () => {
-      if (this.active === session)
-        this.publish({ ...this.state, speaking: false });
-    };
-    if (session.buffer && this.deps.play(session.buffer, ended)) {
-      this.publish({ caption: session.text, speaking: true, replay: true });
-      report("personalized");
-      return;
-    }
-    const failed = () => {
-      if (this.active === session) {
-        this.publish({ caption: session.text, speaking: false, replay: false });
-        report("caption only");
-      }
-    };
-    if (this.deps.local(session.text, ended, failed)) {
-      this.publish({ caption: session.text, speaking: true, replay: true });
-      report("local speech");
-    } else failed();
+      // Playback is one-shot; release decoded speech when its source finishes or is stopped.
+      session.buffer = undefined;
+      session.text = "";
+    }, 500);
   }
   reset() {
     const session = this.active;
