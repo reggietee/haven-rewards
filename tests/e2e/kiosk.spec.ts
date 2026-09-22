@@ -435,6 +435,8 @@ test("live entry opens before 3 p.m. and closes at 7 p.m. without regenerating i
   await expect(
     page.getByRole("button", { name: /Enter & Spin/ }),
   ).toBeDisabled();
-  await expect(page.getByText("The contest has closed")).toBeVisible();
+  await expect(
+    page.getByText("The contest has closed", { exact: true }),
+  ).toBeVisible();
   expect(await readStore(page, "schedules")).toEqual(schedule);
 });

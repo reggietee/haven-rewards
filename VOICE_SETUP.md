@@ -42,7 +42,7 @@ Responses are private/no-store, including Vercel CDN headers. Server errors are 
 
 ## Live-provider verification
 
-On September 22, a fictional entrant in the deployed app’s isolated test flow received a real ElevenLabs grand-prize announcement. It arrived in approximately **1.4 seconds**, before the wheel stopped; the decoded clip was **7.85 seconds** long. The approved announcement matched the recorded prize, mute stopped playback, and Done cleared the name and audio. One spin and one generation marker were recorded; real event inventory was untouched. No personalized recording was saved.
+On September 22, a fictional entrant in the deployed app’s isolated test flow received a real ElevenLabs grand-prize announcement. The latest selected-voice-only recheck arrived in **0.86 seconds**, before the wheel stopped; the decoded clip was **9.24 seconds** long. The approved announcement matched the recorded prize, mute stopped playback, and Done cleared the name and audio. One spin and one generation marker were recorded; real event inventory was untouched. No personalized recording was saved.
 
 An initial HTTP 402 was resolved through the account’s billing configuration. If it recurs, check credits, billing and the selected voice’s API eligibility using the [provider error reference](https://elevenlabs.io/docs/eleven-api/resources/errors). The readiness badge confirms settings are present, not that a provider account is funded. After resolving a provider issue, use a **new fictional test entry**, because the app intentionally does not regenerate speech for an entry already attempted.
 
