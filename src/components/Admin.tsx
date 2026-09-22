@@ -20,6 +20,7 @@ import {
   matchesPublishedPrizes,
   type Prize,
 } from "../config";
+import { voiceDiagnostic } from "../lib/winnerVoice";
 interface Props {
   onClose: () => void;
   onPreview: (p: Prize) => void;
@@ -192,6 +193,15 @@ export default function Admin({ onClose, onPreview, onTest, cached }: Props) {
                     ? "Standalone PWA"
                     : "Safari · Share → Add to Home Screen"}
                 </dd>
+              </div>
+              <div>
+                <dt>Winner announcements</dt>
+                <dd>
+                  {ready.voiceConfigured
+                    ? "Personalized voice configured"
+                    : "Local speech / captions"}
+                </dd>
+                <dd>Last voice status: {voiceDiagnostic().status}</dd>
               </div>
               <div>
                 <dt>Device ID for pairing</dt>

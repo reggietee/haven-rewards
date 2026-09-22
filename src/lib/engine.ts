@@ -243,6 +243,8 @@ export async function enter(
     !input.age
   )
     throw new Error("Enter your name, valid email and rules acceptance.");
+  if (input.waitlist !== true)
+    throw new Error("Please agree to the Haven.fm email consent to enter.");
   return d.transaction(
     "rw",
     [d.device, d.schedules, d.entries, d.consents, d.queue, d.audit],

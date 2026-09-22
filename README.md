@@ -35,7 +35,7 @@ Run `npm run preview -- --port 4287 --strictPort` after building, then open the 
 
 ## Revised prize configuration
 
-The current default pool is 53 featured units worth $7,980 before HST, with hourly allocation 13/13/13/14. The one-month Niagara Passport Membership has three units and uses the grand celebration. Rules acceptance records use version `2026-09-22.1`; marketing consent text/version is unchanged.
+The current default pool is 53 featured units worth $7,980 before HST, with hourly allocation 13/13/13/14. The one-month Niagara Passport Membership has three units and uses the grand celebration. Rules acceptance records use version `2026-09-22.3`. New entries require separate, unchecked-by-default Haven.fm email consent, recorded with the exact “Yes, add me…” wording and version `2026-09-22.1`. Historical consent choices and text remain unchanged.
 
 On upgrade, an untouched, uninitialized previous default pool is updated and audited. Custom operator settings are preserved. This revision uses a new isolated test database; older test records are retained in the previous test database. **An initialized schedule is never changed or regenerated.** Devices with a pool that differs from the published rules cannot accept new entries or create new awards. Existing outcomes remain accessible and exportable. Changes to values/quantities require updating the editable configuration and public rules together before initialization. An existing 33- or 34-unit schedule needs an explicit operational resolution; do not clear site data to bypass this protection.
 
@@ -43,7 +43,7 @@ The home screen pairs the entry form with the real 3D wheel. One Canvas is retai
 
 **Today’s Prize Vault** uses explicit `displayTier`, `displayName`, and `displayOrder` fields in `src/config.ts`. Its Platinum/Gold/Silver/Bronze presentation is independent of the five celebration intensities (`tier`). Older stored prizes receive presentation metadata by ID while rendering; saved schedules and outcomes are never rewritten. The legacy default-upgrade comparison ignores presentation-only fields.
 
-The home screen uses normal document scrolling: a 56% form / 44% wheel hero, then a full-width dark metallic prize gallery, followed by sponsors, legal text and the rules QR. There are no nested prize or form scroll containers. Platinum has two large headline prizes and two supporting prizes; Gold has three partner features, Silver four experiences, and Bronze two substantial features. Before the event, counts describe today’s pool; during the event they include all remaining units, including unreleased ones. Depleted types stay in place. Release times are never displayed.
+The home screen uses normal document scrolling: a 56% form / 44% wheel hero, then a full-width dark metallic prize gallery, followed by sponsors, legal text and the rules QR. There are no nested prize or form scroll containers. Platinum has two large headline prizes and two supporting prizes; Gold has three partner features, Silver three experiences, and Bronze two substantial features. Before the event, counts describe today’s pool; during the event they include all remaining units, including unreleased ones. Depleted types stay in place. Release times are never displayed.
 
 Portrait stacks the form, wheel and gallery in that order. Keyboard contraction keeps every control reachable through document scrolling. Completed entrant reset returns the page to the top; browsing inactivity does not move the page. Back to spin returns focus to the first-name field. The wheel pauses outside the viewport, under controls, and when the page is hidden. Reduced motion disables idle rotation, camera drift and decorative gallery shimmer; an explicit spin still receives the shorter result animation.
 
@@ -80,7 +80,7 @@ React + strict TypeScript + Vite 8; React Three Fiber/Three.js; Motion; Dexie; W
 ```text
 Entrant form → IndexedDB entry + consent + durable queue (one transaction)
 Spin tap → IndexedDB available units → crypto selection → award + spin + code + queue (one transaction)
-Committed result → predetermined wheel angle → tier reveal → 15-second UI reset
+Committed result → predetermined wheel angle → tier reveal + optional spoken announcement → manual Done reset
 Queue → authenticated /api/sync → fixed rows in private Google Sheet
                                   ↳ private Excluded matching → restricted review cells only
 ```
@@ -105,3 +105,7 @@ Browser-test tooling is pinned to Playwright 1.56.1 because the newest Playwrigh
 The E2E suite uses page-initiated reloads, avoiding the separate documented [Playwright WebKit automation reload/service-worker issue](https://github.com/microsoft/playwright/issues/42273). On this host, WebKit’s `context.setOffline(true)` also rejected a minimal worker’s synthetic response while its controller and cache remained valid. WebKit offline tests therefore close the origin’s actual TCP listener, then reopen it for reconnection; Chromium uses the browser offline switch. No cached responses are mocked. The production app has no test hooks or clock overrides; only the browser test injects an event-time offset.
 
 Font license notices are included in `public/licenses`. Consents CSV exports include the linked entrant email as well as opted-in/opted-out proof. The protected Excluded table is never part of a kiosk export. See [docs/VERIFICATION.md](docs/VERIFICATION.md) for test results, browser-testing limits and QA screenshots.
+
+## Spoken announcements and manual results
+
+See [VOICE_SETUP.md](VOICE_SETUP.md) for optional ElevenLabs variables, protected endpoint, offline fallbacks, privacy and iPad checks. Results now remain on screen until staff presses **Done**. The existing 90-second timeout applies only to an abandoned pre-spin ready screen. Voice generation cannot affect the recorded prize, and replay never generates another paid request.

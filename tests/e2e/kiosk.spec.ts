@@ -55,7 +55,7 @@ async function initialize(page: Page) {
   await expect(page.getByText("Initialized · schedule locked")).toBeVisible();
   await page.getByRole("button", { name: "Close controls" }).click();
 }
-async function fill(page: Page, email: string, optin = false) {
+async function fill(page: Page, email: string, optin = true) {
   await page
     .getByRole("textbox", { name: "First name", exact: true })
     .fill("Jamie");
@@ -103,10 +103,16 @@ test("offline kiosk, consent, reload, reset, duplicate blocking and idempotent r
   });
   const scheduleBefore = await readStore(page, "schedules");
   await network.offline(true);
-  await fill(page, "first@example.com");
+  await fill(page, "first@example.com", false);
   expect(
     await page.getByRole("checkbox", { name: /Haven.fm/ }).isChecked(),
   ).toBe(false);
+  await page.getByRole("button", { name: "Enter & Spin" }).click();
+  await expect(
+    page.getByRole("button", { name: "SPIN THE WHEEL" }),
+  ).toHaveCount(0);
+  expect(await readStore(page, "entries")).toHaveLength(0);
+  await page.getByRole("checkbox", { name: /Yes, add me/ }).check();
   await page.getByRole("button", { name: "Enter & Spin" }).click();
   await expect(
     page.getByRole("button", { name: "SPIN THE WHEEL" }),
@@ -136,6 +142,9 @@ test("offline kiosk, consent, reload, reset, duplicate blocking and idempotent r
   await page.getByRole("button", { name: "SPIN THE WHEEL" }).click();
   await expect(page.getByText("YOUR POTENTIAL PRIZE CODE")).toBeVisible();
   await page.waitForTimeout(16000);
+  await expect(page.getByText("YOUR POTENTIAL PRIZE CODE")).toBeVisible();
+  await expect(page.getByText(/Next guest in/)).toHaveCount(0);
+  await page.getByRole("button", { name: /Done/ }).click();
   await expect(
     page.getByRole("textbox", { name: "Email address" }),
   ).toHaveValue("");
@@ -149,7 +158,7 @@ test("offline kiosk, consent, reload, reset, duplicate blocking and idempotent r
   await expect(page.getByRole("alert")).toContainText("already has an entry");
   expect(await readStore(page, "entries")).toHaveLength(2);
   const consents = await readStore(page, "consents");
-  expect(consents.map((c) => c.choice).sort()).toEqual([false, true]);
+  expect(consents.map((c) => c.choice).sort()).toEqual([true, true]);
   expect(
     consents.every(
       (c) => c.source === "Demo Day booth" && typeof c.text === "string",

@@ -4,7 +4,11 @@ import {
   unlockAuthorization,
 } from "./operator";
 import { db } from "./db";
-export type Readiness = { configured: boolean; adminConfigured: boolean };
+export type Readiness = {
+  configured: boolean;
+  adminConfigured: boolean;
+  voiceConfigured?: boolean;
+};
 export async function getReadiness(): Promise<Readiness> {
   try {
     const r = await fetch("/api/health", { cache: "no-store" });

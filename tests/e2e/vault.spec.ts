@@ -300,6 +300,7 @@ test("award updates remaining counts, keeps depleted cards in order, and resets 
     .getByRole("textbox", { name: "Email address" })
     .fill("vault@example.com");
   await page.getByRole("checkbox", { name: /I am 18/ }).check();
+  await page.getByRole("checkbox", { name: /Yes, add me/ }).check();
   const canvas = await page.locator(".wheel-canvas canvas").elementHandle();
   await page.getByRole("button", { name: "Enter & Spin" }).click();
   expect(

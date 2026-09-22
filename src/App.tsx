@@ -26,6 +26,8 @@ import {
   spinSound,
   unlockAudio,
 } from "./lib/audio";
+import { EMPTY_VOICE, WinnerVoice } from "./lib/winnerVoice";
+import { VOICE_PRIVACY } from "./lib/announcements";
 import { Brand, Sponsors } from "./components/Brand";
 import { PrizeVault } from "./components/PrizeVault";
 const Wheel = lazy(() => import("./components/Wheel"));
@@ -49,10 +51,25 @@ export default function App() {
     [muted, setMute] = useState(isMuted()),
     [cached, setCached] = useState(false),
     [qr, setQr] = useState(""),
-    [count, setCount] = useState(15),
     [now, setNow] = useState(Date.now()),
     [dbReady, setDbReady] = useState(false),
     [online, setOnline] = useState(navigator.onLine);
+  const [voiceState, setVoiceState] = useState({ ...EMPTY_VOICE });
+  const voice = useRef<WinnerVoice | null>(null);
+  useEffect(() => {
+    const controller = new WinnerVoice(setVoiceState);
+    voice.current = controller;
+    return () => {
+      controller.dispose();
+      voice.current = null;
+    };
+  }, []);
+  useEffect(() => {
+    if (screen === "result") {
+      const id = preview?.id ?? outcome?.prizeId;
+      if (id) voice.current?.land(id);
+    }
+  }, [screen, outcome?.id, preview?.id]);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [screen, rules, admin]);
@@ -149,6 +166,7 @@ export default function App() {
     };
   }, []);
   async function reset() {
+    voice.current?.reset();
     setForm({ ...EMPTY });
     setEntryId(undefined);
     setOutcome(undefined);
@@ -157,7 +175,6 @@ export default function App() {
     setError("");
     setBusy(false);
     lock.current = false;
-    setCount(15);
     try {
       await complete(store);
       void syncNow();
@@ -166,20 +183,6 @@ export default function App() {
     }
   }
   useEffect(() => {
-    if (screen !== "result") return;
-    const deadline = Date.now() + 15000;
-    setCount(15);
-    const timer = setInterval(() => {
-      const left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
-      setCount(left);
-      if (!left) {
-        clearInterval(timer);
-        void reset();
-      }
-    }, 200);
-    return () => clearInterval(timer);
-  }, [screen]);
-  useEffect(() => {
     if (screen !== "ready") return;
     const timer = setTimeout(() => void reset(), 90000);
     return () => clearTimeout(timer);
@@ -187,7 +190,10 @@ export default function App() {
   // Hide all personal form state when backgrounded. A committed entry resumes by ID only.
   useEffect(() => {
     const clear = () => {
-      if (document.hidden) setForm({ ...EMPTY });
+      if (document.hidden) {
+        setForm({ ...EMPTY });
+        voice.current?.reset();
+      }
     };
     document.addEventListener("visibilitychange", clear);
     return () => document.removeEventListener("visibilitychange", clear);
@@ -235,6 +241,7 @@ export default function App() {
       setOutcome(result);
       setScreen("spinning");
       spinSound();
+      voice.current?.prepare(result.id, result.prizeId, store);
       void syncNow();
     } catch (e) {
       setError(
@@ -265,6 +272,7 @@ export default function App() {
     }
   };
   async function startTest() {
+    voice.current?.reset();
     await setup(testDb);
     await initialize(testDb);
     await complete(testDb);
@@ -278,6 +286,7 @@ export default function App() {
     lock.current = false;
   }
   function showPreview(p: Prize) {
+    voice.current?.reset();
     unlockAudio();
     setPreview(p);
     setOutcome(undefined);
@@ -486,17 +495,13 @@ export default function App() {
                   <label className="check-row consent-check">
                     <input
                       type="checkbox"
+                      required
                       checked={form.waitlist}
                       onChange={(e) =>
                         setForm({ ...form, waitlist: e.target.checked })
                       }
                     />
-                    <span>
-                      <strong>
-                        Haven.fm · Be in the know <em>OPTIONAL</em>
-                      </strong>
-                      {CONSENT_TEXT}
-                    </span>
+                    <span>{CONSENT_TEXT}</span>
                   </label>
                   {error && (
                     <p className="error" role="alert">
@@ -529,7 +534,9 @@ export default function App() {
                 </form>
                 <p className="privacy-note">
                   Your name and email are used to administer the contest and
-                  contact you about your potential prize. Marketing is optional.
+                  contact you about your potential prize. Haven.fm email consent
+                  is required to enter; you can unsubscribe at any time.
+                  <span className="voice-privacy">{VOICE_PRIVACY}</span>
                 </p>
               </motion.div>
             )}
@@ -613,6 +620,34 @@ export default function App() {
                 {prize.sponsor !== "haven" && (
                   <Brand name={prize.sponsor} className="result-sponsor" />
                 )}
+                {voiceState.caption && (
+                  <div
+                    className="winner-announcement"
+                    data-speaking={voiceState.speaking}
+                  >
+                    <p
+                      className="winner-caption"
+                      aria-live="polite"
+                      aria-atomic="true"
+                    >
+                      {voiceState.caption}
+                    </p>
+                    {!muted && voiceState.replay && (
+                      <button
+                        type="button"
+                        className="voice-replay"
+                        aria-label="Hear your prize announcement again"
+                        disabled={voiceState.speaking}
+                        onClick={() => {
+                          unlockAudio();
+                          voice.current?.replay();
+                        }}
+                      >
+                        {voiceState.speaking ? "Speaking…" : "Hear it again"}
+                      </button>
+                    )}
+                  </div>
+                )}
                 <p className="prize-claim">{prize.claim}</p>
                 <div className="prize-code">
                   <span>
@@ -627,7 +662,7 @@ export default function App() {
                   Haven will contact you, normally within three business days.
                 </p>
                 <button className="primary" onClick={() => void reset()}>
-                  Done <span>Next guest in {count}s</span>
+                  Done <span>Next guest →</span>
                 </button>
               </motion.div>
             )}

@@ -33,12 +33,13 @@ To enter during the Contest Period, an eligible entrant must:
 
 1. attend the Haven Workspace booth in person;
 2. enter their own first and last name and email address on the contest device;
-3. confirm that they are at least 18 years old and agree to these Rules; and
-4. complete one spin on the contest device.
+3. confirm that they are at least 18 years old and agree to these Rules;
+4. separately select the required Haven.fm email-consent checkbox; and
+5. complete one spin on the contest device.
 
 There is a limit of one entry and one spin per person during the Contest Period. Entries made using multiple email addresses, on behalf of another person, using false information, or by any automated or fraudulent method are void. A duplicate email address will be blocked. Entries that appear to use a different email address for the same person may be flagged for review.
 
-Joining the Haven.fm waitlist is optional, is not required to enter or win, and does not affect an entrant's chance of winning. The waitlist choice is presented as a separate, unchecked opt-in.
+To submit a new entry, entrants must agree to join the Haven.fm waitlist and receive the emails described in the separate consent checkbox. The checkbox is unchecked by default and must be selected to enter. Entrants can unsubscribe at any time; subscribing does not change prize-selection odds.
 
 ### 5. Prize pool
 
@@ -117,9 +118,11 @@ The name on a booking must match the name on the contest entry. Identification m
 
 ### 12. Personal information and Haven.fm opt-in
 
+If sound is enabled, the attendee’s first name may be securely sent to our voice-service provider solely to generate a spoken prize announcement. Email addresses are never sent for this purpose.
+
 The Sponsor collects each entrant's name, email address, eligibility confirmation, contest activity, and related fulfillment information to administer the Contest, prevent duplicate entries, contact potential winners, fulfill prizes, maintain records, and comply with legal obligations.
 
-Contest information will not be used to send marketing emails unless the entrant separately and expressly opts in to the Haven.fm waitlist. The optional waitlist consent request identifies the sender, explains the messages the entrant agrees to receive, provides contact information, and explains that consent may be withdrawn at any time. The Sponsor will retain a record of the wording shown, the entrant's choice, the date and time, and the source of the consent.
+Contest information will not be used to send marketing emails unless the entrant separately and expressly opts in to the Haven.fm waitlist. The required, separate waitlist consent request identifies the sender, explains the messages the entrant agrees to receive, provides contact information, and explains that consent may be withdrawn at any time. The Sponsor will retain a record of the wording shown, the entrant's choice, the date and time, and the source of the consent.
 
 Entrants may contact info@havenworkspace.ca about their information or to withdraw marketing consent. Withdrawing marketing consent does not affect contest eligibility or an awarded prize.
 

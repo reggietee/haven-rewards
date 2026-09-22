@@ -1,12 +1,19 @@
 let context: AudioContext | undefined;
 let master: GainNode | undefined;
+let effects: GainNode | undefined;
+let voiceSource: AudioBufferSourceNode | undefined;
+let localUtterance: SpeechSynthesisUtterance | undefined;
+let speechTimer: ReturnType<typeof setTimeout> | undefined;
+const muteListeners = new Set<(muted: boolean) => void>();
 let muted = localStorage.getItem("haven-muted") === "true";
 export function setMuted(value: boolean) {
   muted = value;
+  if (value) stopAnnouncement();
+  muteListeners.forEach((listener) => listener(value));
   localStorage.setItem("haven-muted", String(value));
   if (context) {
     master?.gain.setTargetAtTime(value ? 0 : 1, context.currentTime, 0.025);
-    if (!value) void context.resume();
+    if (!value) void context.resume().catch(() => {});
   }
 }
 export function isMuted() {
@@ -19,8 +26,10 @@ export function unlockAudio() {
       master = context.createGain();
       master.gain.value = muted ? 0 : 1;
       master.connect(context.destination);
+      effects = context.createGain();
+      effects.connect(master);
     }
-    if (!muted) void context.resume();
+    if (!muted) void context.resume().catch(() => {});
   } catch {
     /* Visual flow remains available. */
   }
@@ -44,7 +53,7 @@ function tone(
   g.gain.exponentialRampToValueAtTime(volume, start + 0.015);
   g.gain.exponentialRampToValueAtTime(0.001, start + duration);
   o.connect(g);
-  g.connect(master!);
+  g.connect(effects!);
   o.onended = () => {
     o.disconnect();
     g.disconnect();
@@ -87,7 +96,7 @@ export function celebrationSound(tier: number) {
     g.gain.value = 0.6;
     s.connect(f);
     f.connect(g);
-    g.connect(master!);
+    g.connect(effects!);
     s.onended = () => {
       s.disconnect();
       f.disconnect();
@@ -97,4 +106,132 @@ export function celebrationSound(tier: number) {
     for (let i = 0; i < 9; i++)
       tone(392 * ((i % 3) + 1), 1.6, 0.04, "triangle", 0.6 + i * 0.35);
   }
+}
+
+export function onMute(listener: (value: boolean) => void) {
+  muteListeners.add(listener);
+  return () => {
+    muteListeners.delete(listener);
+  };
+}
+export function duckEffects(value: boolean) {
+  if (!context || !effects) return;
+  const gain = effects.gain;
+  gain.cancelScheduledValues(context.currentTime);
+  gain.setTargetAtTime(
+    value ? 0.18 : 1,
+    context.currentTime,
+    value ? 0.08 : 0.18,
+  );
+}
+export async function decodeAnnouncement(bytes: ArrayBuffer) {
+  if (!context) throw new Error("Audio unavailable");
+  const buffer = await context.decodeAudioData(bytes);
+  if (buffer.duration < 0.1 || buffer.duration > 20)
+    throw new Error("Audio unavailable");
+  return buffer;
+}
+export function stopAnnouncement() {
+  clearTimeout(speechTimer);
+  speechTimer = undefined;
+  if (voiceSource) {
+    voiceSource.onended = null;
+    try {
+      voiceSource.stop();
+    } catch {
+      /* Already finished. */
+    }
+    try {
+      voiceSource.disconnect();
+    } catch {
+      /* Already disconnected. */
+    }
+    voiceSource = undefined;
+  }
+  if (localUtterance) {
+    localUtterance.onstart =
+      localUtterance.onend =
+      localUtterance.onerror =
+        null;
+    localUtterance = undefined;
+    try {
+      window.speechSynthesis?.cancel();
+    } catch {
+      /* System speech unavailable. */
+    }
+  }
+  duckEffects(false);
+}
+export function playAnnouncement(buffer: AudioBuffer, ended: () => void) {
+  stopAnnouncement();
+  if (!context || context.state !== "running" || !master || muted) return false;
+  const source = context.createBufferSource();
+  source.buffer = buffer;
+  source.connect(master);
+  voiceSource = source;
+  source.onended = () => {
+    if (voiceSource !== source) return;
+    source.disconnect();
+    voiceSource = undefined;
+    duckEffects(false);
+    ended();
+  };
+  duckEffects(true);
+  source.start();
+  return true;
+}
+function localVoice() {
+  if (!("speechSynthesis" in window)) return;
+  const voices = window.speechSynthesis
+    .getVoices()
+    .filter((v) => v.localService && /^en(?:-|_)/i.test(v.lang));
+  return (
+    voices.find((v) => /^en-CA$/i.test(v.lang)) ??
+    voices.find((v) => /^en-US$/i.test(v.lang)) ??
+    voices[0]
+  );
+}
+export function hasLocalVoice() {
+  try {
+    return !!localVoice();
+  } catch {
+    return false;
+  }
+}
+/** Only explicitly on-device voices; never the browser's possibly remote default. */
+export function playLocalAnnouncement(
+  text: string,
+  ended: () => void,
+  failed: () => void,
+) {
+  stopAnnouncement();
+  const voice = localVoice();
+  if (!voice || muted) return false;
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.voice = voice;
+  utterance.lang = voice.lang;
+  utterance.rate = 1.02;
+  // System speech cannot enter a Web Audio graph; mirror master mute/volume and cancel on mute.
+  utterance.volume = muted ? 0 : 1;
+  localUtterance = utterance;
+  const finish = (failure: boolean) => {
+    if (localUtterance !== utterance) return;
+    stopAnnouncement();
+    if (failure) failed();
+    else ended();
+  };
+  utterance.onstart = () => {
+    clearTimeout(speechTimer);
+    if (localUtterance !== utterance || muted) {
+      stopAnnouncement();
+      return;
+    }
+    duckEffects(true);
+    speechTimer = setTimeout(() => finish(true), 20000);
+  };
+  utterance.onend = () => finish(false);
+  utterance.onerror = () => finish(true);
+  speechTimer = setTimeout(() => finish(true), 350); // Never leave delayed speech in Safari's queue.
+  window.speechSynthesis.speak(utterance);
+  return true;
 }

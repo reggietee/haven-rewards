@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import type { VercelRequest, VercelResponse } from "./http.js";
 import admin from "../api/admin.ts";
 import health from "../api/health.ts";
+import winnerVoice from "../api/winner-voice.ts";
 import sync from "../api/sync.ts";
 export function apiMiddleware(
   req: IncomingMessage,
@@ -9,16 +10,21 @@ export function apiMiddleware(
   next: () => void,
 ) {
   const handler = (
-    { "/api/admin": admin, "/api/health": health, "/api/sync": sync } as Record<
-      string,
-      (req: VercelRequest, res: VercelResponse) => unknown
-    >
+    {
+      "/api/admin": admin,
+      "/api/health": health,
+      "/api/sync": sync,
+      "/api/winner-voice": winnerVoice,
+    } as Record<string, (req: VercelRequest, res: VercelResponse) => unknown>
   )[req.url?.split("?")[0] ?? ""];
   if (!handler) return next();
   let body = "";
   req.on("data", (chunk) => {
     body += String(chunk);
-    if (body.length > 200000) {
+    if (
+      Buffer.byteLength(body) >
+      (req.url?.startsWith("/api/winner-voice") ? 1024 : 200000)
+    ) {
       res.statusCode = 413;
       res.end();
       req.destroy();

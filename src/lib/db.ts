@@ -100,6 +100,7 @@ export class HavenDB extends Dexie {
   spins!: Table<Spin, string>;
   queue!: Table<Queue, number>;
   audit!: Table<Audit, string>;
+  voiceAttempts!: Table<{ entryId: string; attemptedAt: string }, string>;
   constructor(name = "haven-demo-day-v1") {
     super(name);
     this.version(1).stores({
@@ -112,6 +113,7 @@ export class HavenDB extends Dexie {
       queue: "++seq,&id,status,nextAt",
       audit: "id,action",
     });
+    this.version(2).stores({ voiceAttempts: "entryId" });
   }
 }
 export const db = new HavenDB();

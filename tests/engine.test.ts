@@ -29,7 +29,7 @@ const person = (
   email = "person@example.com",
   first = "Alex",
   last = "Example",
-  waitlist = false,
+  waitlist = true,
 ) => ({ first, last, email, age: true, waitlist });
 beforeEach(async () => {
   db = new HavenDB("test-" + crypto.randomUUID());
@@ -235,25 +235,37 @@ describe("entry and award transactions", () => {
     expect(similarNames("alexsmith", "alexsmit")).toBe(true);
     expect(similarNames("alexsmith", "patjones")).toBe(false);
   });
-  it("preserves exact opt-in and opt-out proof, source, versions and timestamps", async () => {
-    for (const choice of [false, true]) {
-      const e = await enter(
-        person(`${choice}@example.com`, "Alex", "Test", choice),
-        db,
-        start,
-      );
-      const c = await db.consents.where("entryId").equals(e.id).first();
-      expect(c).toMatchObject({
-        choice,
-        text: CONSENT_TEXT,
-        version: CONSENT_VERSION,
-        source: "Demo Day booth",
-        createdAt: new Date(start).toISOString(),
-      });
-      expect(e.ageAccepted).toBe(true);
-      expect(e.rulesVersion).toBeTruthy();
-      await complete(db);
-    }
+  it("requires new consent and preserves exact proof without changing historical choices", async () => {
+    const legacy = {
+      id: crypto.randomUUID(),
+      entryId: crypto.randomUUID(),
+      choice: false,
+      text: "Previous consent wording",
+      version: "2026-09-21.1",
+      source: "Demo Day booth" as const,
+      createdAt: new Date(start - 1000).toISOString(),
+    };
+    await db.consents.add(legacy);
+    await expect(
+      enter(person("declined@example.com", "Alex", "Test", false), db, start),
+    ).rejects.toThrow("Haven.fm email consent");
+    expect(await db.entries.count()).toBe(0);
+    const e = await enter(person(), db, start);
+    expect(
+      await db.consents.where("entryId").equals(e.id).first(),
+    ).toMatchObject({
+      choice: true,
+      text: CONSENT_TEXT,
+      version: CONSENT_VERSION,
+      source: "Demo Day booth",
+      createdAt: new Date(start).toISOString(),
+    });
+    expect(
+      CONSENT_TEXT.startsWith("Yes, add me to the Haven.fm waitlist."),
+    ).toBe(true);
+    expect(await db.consents.get(legacy.id)).toEqual(legacy);
+    expect(e.ageAccepted).toBe(true);
+    expect(e.rulesVersion).toBe(RULES_VERSION);
   });
   it("reuses committed outcome after concurrent double-taps and reload", async () => {
     const e = await enter(person(), db, end - 1000);
@@ -326,7 +338,7 @@ describe("entry and award transactions", () => {
           ? start + Math.floor((i / 230) * (end - start - 1001))
           : end - 1;
       const e = await enter(
-        person(`guest${i}@example.com`, `Guest${i}`, "Visitor", i % 2 === 0),
+        person(`guest${i}@example.com`, `Guest${i}`, "Visitor", true),
         db,
         now,
       );

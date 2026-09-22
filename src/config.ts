@@ -2,8 +2,8 @@ export const EVENT_ID = "nfih-haven-2026-09-22";
 export const TIMEZONE = "America/Toronto";
 export const START = "2026-09-22T15:00:00-04:00";
 export const END = "2026-09-22T19:00:00-04:00";
-export const RULES_VERSION = "2026-09-22.1";
-export const CONSENT_VERSION = "2026-09-21.1";
+export const RULES_VERSION = "2026-09-22.3";
+export const CONSENT_VERSION = "2026-09-22.1";
 export const AGE_TEXT = "I am 18 or older and agree to the official rules.";
 export function matchesPublishedPrizes(prizes: Prize[]) {
   return (
@@ -19,7 +19,7 @@ export function matchesPublishedPrizes(prizes: Prize[]) {
   );
 }
 export const CONSENT_TEXT =
-  "Add me to the Haven.fm waitlist. I agree to receive emails from Haven Workspace about the Haven.fm launch, Haven events, and membership news. You can unsubscribe at any time. Haven Workspace, 242 Mary St, Unit 8, Niagara-on-the-Lake, ON · info@havenworkspace.ca";
+  "Yes, add me to the Haven.fm waitlist. I agree to receive emails from Haven Workspace about the Haven.fm launch, Haven events, and membership news. You can unsubscribe at any time. Haven Workspace, 242 Mary St, Unit 8, Niagara-on-the-Lake, ON · info@havenworkspace.ca";
 export type Tier = 1 | 2 | 3 | 4 | 5;
 export type DisplayTier = "platinum" | "gold" | "silver" | "bronze";
 export interface Prize {

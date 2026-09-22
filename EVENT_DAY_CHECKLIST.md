@@ -26,7 +26,9 @@
 
 ## During 3–7 p.m. Eastern
 
-- [ ] Keep the installed app foregrounded. Check the first real entry, one-tap spin and Done/15-second reset.
+- [ ] With voice configured, test a fictional entry online, replay, mute and Done during speech. Test offline fallback. See VOICE_SETUP.md.
+- [ ] Confirm both consent checkboxes start unchecked. Haven.fm consent is required for new entries; verify its wording begins “Yes, add me…”.
+- [ ] Keep the installed app foregrounded. Check the first real entry, one-tap spin and manual Done reset (the result stays open until staff taps Done).
 - [ ] No previous name, email or prize code should remain visible before the next entrant.
 - [ ] Monitor power, heat, brightness, queue and clock periodically. Use pause/resume for interruptions.
 - [ ] Export Entries, Consents, Spins, Inventory and Audit at least hourly. Preserve both opted-in and not-opted-in consent proof; marketing uses only TRUE choices.
