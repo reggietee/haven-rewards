@@ -1977,3 +1977,10 @@ td input {
     padding-block: 8px;
   }
 }
+
+/* Keep the cinematic logo reveal off the spoken result caption on landscape. */
+@media (min-width: 900px) and (orientation: landscape) {
+  .screen-result .grand-wordmark {
+    right: 46%;
+  }
+}

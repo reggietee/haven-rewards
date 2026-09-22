@@ -89,7 +89,7 @@ test("personalized speech uses saved entry during spin, lands before voice, repl
   // Any cleared/display-only form state is irrelevant: payload is read back from IndexedDB.
   await page.getByRole("button", { name: "SPIN THE WHEEL" }).click();
   await expect.poll(() => calls).toBe(1);
-  expect(phase).toBe("spinning");
+  await expect.poll(() => phase).toBe("spinning");
   await expect.poll(() => spinRecorded).toBe(true);
   await expect(page.locator(".winner-caption")).toHaveCount(0);
   await expect(page.getByText("YOUR POTENTIAL PRIZE CODE")).toBeVisible();

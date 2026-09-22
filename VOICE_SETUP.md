@@ -40,6 +40,12 @@ Warm function instances allow six reservations per device/minute and 300 per dev
 
 Responses are private/no-store, including Vercel CDN headers. Server errors are generic and never log provider bodies, names or credentials. Failures log only a fixed reason code (deadline, transport, provider status or audio format) and an optional HTTP status for operator troubleshooting. Booth controls show configuration readiness and a fixed-code, in-memory last voice status, without identity data. The separate voice privacy disclosure is on the form and in the public rules. The separately requested consent update requires the unchecked Haven.fm checkbox for new entries and versions its exact “Yes, add me…” wording. Historical consent records are preserved. Voice generation does not change consent records.
 
+## Live-provider verification
+
+On September 22, a fictional entrant in the deployed app’s isolated test flow received a real ElevenLabs grand-prize announcement. It arrived in approximately **1.4 seconds**, before the wheel stopped; the decoded clip was **7.85 seconds** long. The exact caption matched, replay made no extra request, mute stopped playback, and Done cleared the name and audio. One spin and one generation marker were recorded; real event inventory was untouched. No personalized recording was saved.
+
+An initial HTTP 402 was resolved through the account’s billing configuration. If it recurs, check credits, billing and the selected voice’s API eligibility using the [provider error reference](https://elevenlabs.io/docs/eleven-api/resources/errors). The readiness badge confirms settings are present, not that a provider account is funded. After resolving a provider issue, use a **new fictional test entry**, because the app intentionally does not regenerate speech for an entry already attempted.
+
 ## Event-day checks
 
 - Unlock controls online; confirm Winner announcements says configured.
