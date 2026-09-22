@@ -1,0 +1,9 @@
+.git/
+node_modules/
+.env*
+OPERATOR_ACCESS.local.txt
+test-results/
+playwright-report/
+HAVEN_ASTRA_BUILD_PROMPT.md
+codex-clipboard-*.webp
+*.tsbuildinfo

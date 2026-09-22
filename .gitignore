@@ -1,0 +1,27 @@
+node_modules/
+dist/
+.vercel/
+.env*
+!.env.example
+playwright-report/
+test-results/
+*.tsbuildinfo
+.DS_Store
+OPERATOR_ACCESS.local.txt
+
+# Event exports, local databases and credential files
+/exports/
+/backups/
+*.csv
+*.xlsx
+*.sqlite*
+*.db
+*.pem
+*.key
+*service-account*.json
+
+# Supplied working references stay local; published rules live in src/rules.md
+/HAVEN_ASTRA_BUILD_PROMPT.md
+/HAVEN_DEMO_DAY_OFFICIAL_RULES_DRAFT.md
+/haven-demo-day-rewards-app-spec.md
+/codex-clipboard-*.webp
