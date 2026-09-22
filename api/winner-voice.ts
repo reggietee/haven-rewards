@@ -56,7 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const timer = setTimeout(() => {
       deadline = true;
       controller.abort();
-    }, 5500);
+    }, 7500);
     const disconnected = () => controller.abort();
     res.on?.("close", disconnected);
     try {

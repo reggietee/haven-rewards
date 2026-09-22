@@ -154,7 +154,7 @@ it.each(["muted", "offline", "missing authorization", "invalid name"])(
     expect(deps.play).not.toHaveBeenCalled();
   },
 );
-it("discards late audio immediately at reveal and never plays it into the next entrant", async () => {
+it("discards audio beyond the bounded result grace window and never plays it into the next entrant", async () => {
   let finish!: (r: Response) => void;
   deps.fetch = vi.fn(
     () =>
@@ -168,6 +168,7 @@ it("discards late audio immediately at reveal and never plays it into the next e
   voice.land(prizeId);
   await vi.advanceTimersByTimeAsync(500);
   expect(deps.play).not.toHaveBeenCalled();
+  await vi.advanceTimersByTimeAsync(2500);
   expect(voiceDiagnostic().status).toBe("late");
   voice.reset();
   finish(response());
@@ -206,7 +207,7 @@ it("malformed or failed replies produce prompt fallback, never a retry or anothe
   await vi.advanceTimersByTimeAsync(500);
   expect(deps.decode).not.toHaveBeenCalled();
   expect(deps.play).not.toHaveBeenCalled();
-  expect(voiceDiagnostic().status).toBe("unavailable");
+  expect(voiceDiagnostic().status).toBe("invalid audio response");
   vi.useRealTimers();
   expect(await d.spins.count()).toBe(1);
   expect(deps.fetch).toHaveBeenCalledOnce();
@@ -232,3 +233,67 @@ it("a playback exception cannot escape into the result UI", async () => {
   expect(state.speaking).toBe(false);
   expect(voiceDiagnostic().status).toBe("playback unavailable");
 });
+
+it("plays a response arriving after reveal once within the grace window", async () => {
+  let finish!: (r: Response) => void;
+  deps.fetch = vi.fn(
+    () =>
+      new Promise<Response>((resolve) => {
+        finish = resolve;
+      }),
+  );
+  voice.prepare(spinId, prizeId, d);
+  await settled();
+  vi.useFakeTimers();
+  voice.land(prizeId);
+  await vi.advanceTimersByTimeAsync(900);
+  expect(deps.play).not.toHaveBeenCalled();
+  finish(response());
+  await vi.advanceTimersByTimeAsync(100);
+  expect(deps.play).toHaveBeenCalledOnce();
+  expect(voiceDiagnostic().status).toBe("personalized");
+  voice.land(prizeId);
+  await vi.advanceTimersByTimeAsync(8000);
+  expect(deps.play).toHaveBeenCalledOnce();
+  expect(deps.fetch).toHaveBeenCalledOnce();
+});
+it.each(["reset", "mute"])(
+  "%s during the grace window cancels speech for the previous entrant",
+  async (action) => {
+    let finish!: (r: Response) => void;
+    deps.fetch = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    voice.prepare(spinId, prizeId, d);
+    await settled();
+    vi.useFakeTimers();
+    voice.land(prizeId);
+    await vi.advanceTimersByTimeAsync(900);
+    if (action === "reset") voice.reset();
+    else listeners.forEach((fn) => fn(true));
+    finish(response());
+    await vi.advanceTimersByTimeAsync(8000);
+    expect(deps.play).not.toHaveBeenCalled();
+  },
+);
+it.each([
+  [401, "authorization required"],
+  [429, "rate limited"],
+  [503, "service unavailable"],
+] as const)(
+  "keeps a useful non-sensitive diagnostic for HTTP %s",
+  async (status, label) => {
+    deps.fetch = vi.fn(async () => new Response("private error", { status }));
+    voice.prepare(spinId, prizeId, d);
+    await settled();
+    vi.useFakeTimers();
+    voice.land(prizeId);
+    await vi.advanceTimersByTimeAsync(3000);
+    expect(voiceDiagnostic().status).toBe(label);
+    expect(deps.play).not.toHaveBeenCalled();
+    expect(deps.fetch).toHaveBeenCalledOnce();
+  },
+);

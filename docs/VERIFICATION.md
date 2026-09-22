@@ -1,5 +1,13 @@
 # Verification record — September 22, 2026
 
+## Speech timing follow-up
+
+- Reproduced a silent valid announcement in WebKit with a 1.1-second reduced-motion spin and a response arriving after 1.8 seconds: the old implementation aborted it at reveal.
+- Ready speech still starts 500 ms after reveal. Pending speech can start once within 3 seconds of reveal, without delaying or changing the result. Done, mute and background cancellation remain immediate; no late speech carries into the next entrant. Request deadlines are bounded at 7.5 seconds server-side and 8 seconds client-side.
+- Separate non-sensitive diagnostics now identify authorization, rate limiting, service failures, malformed audio, decode failures and timeouts.
+- Production build and all 61 unit tests pass, including successful post-reveal arrival, reset/mute during that window, duplicate landing/generation prevention and hard-window expiry. Inventory, consent and synchronization tests remain green.
+
+
 ## Selected-voice-only playback and early entry follow-up
 
 This revision supersedes the caption/replay and system-speech behavior described in the historical checks below.

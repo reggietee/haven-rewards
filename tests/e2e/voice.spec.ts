@@ -262,3 +262,38 @@ test("missing credentials and offline mode still show and retain the recorded pr
   await page.getByRole("button", { name: /Done/ }).click();
   await expect(page.locator(".winner-caption")).toHaveCount(0);
 });
+
+test("reduced-motion result still announces a voice response arriving after the short spin", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  let calls = 0;
+  await page.route("**/api/winner-voice", async (route) => {
+    calls++;
+    const body = route.request().postDataJSON();
+    await new Promise((resolve) => setTimeout(resolve, 1800));
+    await route
+      .fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          text: announcementText(body.prizeId, body.firstName),
+          mimeType: "audio/mpeg",
+          audioBase64: audio,
+        }),
+      })
+      .catch(() => {});
+  });
+  await start(page);
+  await page.getByRole("button", { name: "SPIN THE WHEEL" }).click();
+  await expect(page.getByText("YOUR POTENTIAL PRIZE CODE")).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => window.voiceChecks.plays))
+    .toBe(1);
+  expect(await page.evaluate(() => window.voiceChecks.resultVisible)).toBe(
+    true,
+  );
+  expect(calls).toBe(1);
+  await expect(page.locator(".winner-caption, .voice-replay")).toHaveCount(0);
+  await page.getByRole("button", { name: /Done/ }).click();
+});

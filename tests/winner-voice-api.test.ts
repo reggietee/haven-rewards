@@ -207,7 +207,7 @@ it("uses optional zero retention without sending extra entrant data", async () =
   await generateVoice("Maya", "day", new AbortController().signal);
   expect(String(provider.mock.calls[0][0])).toContain("enable_logging=false");
 });
-it("aborts a slow upstream within the spin and returns a generic failure", async () => {
+it("aborts a slow upstream within the bounded voice deadline and returns a generic failure", async () => {
   vi.useFakeTimers();
   provider.mockImplementation(
     (_url, options) =>
@@ -218,7 +218,7 @@ it("aborts a slow upstream within the spin and returns a generic failure", async
       ),
   );
   const result = call(input());
-  await vi.advanceTimersByTimeAsync(5501);
+  await vi.advanceTimersByTimeAsync(7501);
   expect((await result).status).toBe(503);
   expect(provider).toHaveBeenCalledTimes(1);
 });
