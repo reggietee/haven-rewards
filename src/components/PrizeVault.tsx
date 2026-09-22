@@ -1,4 +1,10 @@
-import { currency, PRIZES, type DisplayTier, type Prize } from "../config";
+import {
+  currency,
+  PRIZES,
+  matchesPublishedPrizes,
+  type DisplayTier,
+  type Prize,
+} from "../config";
 import type { Unit } from "../lib/db";
 import { Brand } from "./Brand";
 
@@ -36,7 +42,9 @@ export function PrizeVault({
 }) {
   // Older device snapshots retain their actual inventory and celebration tier.
   // Presentation comes from explicit catalogue fields, never price or release time.
-  const cards = prizes
+  const catalogue = matchesPublishedPrizes(prizes) ? prizes : PRIZES;
+  const inventoryLive = live && matchesPublishedPrizes(prizes);
+  const cards = catalogue
     .map((p) => {
       const presentation = PRIZES.find((q) => q.id === p.id)!;
       return {
@@ -59,8 +67,9 @@ export function PrizeVault({
         <p className="vault-legend">Platinum · Gold · Silver · Bronze</p>
         <p className="vault-summary">
           <strong>
-            {prizes.reduce((n, p) => n + (p.quantity ?? 0), 0)} featured prizes
-            {live && !closed ? ` · ${remaining} remaining` : ""}
+            {catalogue.reduce((n, p) => n + (p.quantity ?? 0), 0)} featured
+            prizes
+            {inventoryLive && !closed ? ` · ${remaining} remaining` : ""}
           </strong>
           <span>Everyone wins at least a Haven Coworking Day Pass</span>
           {closed && <span>The contest has closed.</span>}
@@ -91,7 +100,8 @@ export function PrizeVault({
                   const count = units.filter(
                     (u) => u.prizeId === p.id && !u.awardedTo && !u.disabled,
                   ).length;
-                  const depleted = live && p.quantity !== null && count === 0;
+                  const depleted =
+                    inventoryLive && p.quantity !== null && count === 0;
                   return (
                     <article
                       key={p.id}
@@ -126,7 +136,7 @@ export function PrizeVault({
                         <span className="vault-count">
                           {p.quantity === null
                             ? "Unlimited fallback"
-                            : live
+                            : inventoryLive
                               ? `${count} remaining`
                               : `${p.quantity} in today’s prize pool`}
                         </span>

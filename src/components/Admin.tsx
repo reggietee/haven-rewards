@@ -13,6 +13,7 @@ import { exportCsv } from "../lib/csv";
 import { supportsOfflineUnlock } from "../lib/operator";
 import {
   END,
+  FEATURED_COUNT,
   PRIZES,
   START,
   currency,
@@ -213,11 +214,11 @@ export default function Admin({ onClose, onPreview, onTest, cached }: Props) {
             <h2>Real event</h2>
             {device && !matchesPublishedPrizes(device.prizes) && (
               <p role="alert" className="operator-warning">
-                This device’s prize pool differs from the published 34-prize
-                rules. New entries are disabled. Any initialized schedule and
-                saved records are preserved. Export existing records and resolve
-                the rules/configuration mismatch before using this device for
-                the contest.
+                This device’s prize pool differs from the published{" "}
+                {FEATURED_COUNT}-prize rules. New entries are disabled. Any
+                initialized schedule and saved records are preserved. Export
+                existing records and resolve the rules/configuration mismatch
+                before using this device for the contest.
               </p>
             )}
             <p>

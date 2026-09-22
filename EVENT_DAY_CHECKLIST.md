@@ -18,7 +18,7 @@
 - [ ] Five quick taps on Haven logo → PIN. Check IndexedDB ready, app shell cached, installed mode and sync readiness. Request persistent storage is best-effort; exports remain essential.
 - [ ] In test mode, run an entry and preview tiers 1–4 plus grand. Check wheel labels, pointer landing, touch targets, landscape fit, keyboard scrolling, speaker volume and mute/unmute on the physical third-generation iPad Air.
 - [ ] Turn on Airplane Mode/Wi-Fi off and confirm test entry, spin, rules and reload work. Reconnect. No real inventory should have changed.
-- [ ] Exit test mode. Confirm the TEST banner disappears. Check the pool is 34 finite units, $5,319, plus the unlimited $25 pass.
+- [ ] Exit test mode. Confirm the TEST banner disappears. Check the pool is 53 finite units, $7,980, plus the unlimited $25 pass.
 - [ ] Initialize real event once. Confirm the immutable schedule exists and Inventory/Audit sync succeeds if configured. Initialization may occur before 3 p.m.; entry is time-gated.
 - [ ] Export the initial Inventory and Audit files. Store copies safely off the device without changing site data.
 - [ ] Lock landscape orientation. Set brightness for tent conditions and reduce auto-lock. Use reliable power.

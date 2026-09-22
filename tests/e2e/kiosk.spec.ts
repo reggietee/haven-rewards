@@ -231,10 +231,10 @@ test("all five celebration tiers and sponsor reveals are previewable without pro
   await controls(page);
   const prizes = [
     "1-Day Coworking Pass",
-    "Part-Time Membership, 1 month",
+    "1-Month Part-Time Membership in NOTL",
     "Story Mode marketing audit",
-    "Business Mailing Address, 6 months",
-    "Full-Time Membership, 3 months",
+    "6-month NOTL Business Mailing Address",
+    "3-month Full-Time Haven Membership in NOTL",
     "Niagara Passport Membership, 1 month (Haven + NFIH)",
   ];
   for (let i = 0; i < prizes.length; i++) {
@@ -269,7 +269,7 @@ test("public rules are readable and cached offline, with every prize and no draf
   await expect(
     page.getByRole("heading", { name: "Spin Your Way to Haven" }),
   ).toBeVisible();
-  await expect(page.getByText(/5,319/)).toBeVisible();
+  await expect(page.getByText(/7,980/)).toBeVisible();
   await expect(page.getByText(/\[TBC\]/)).toHaveCount(0);
   await expect(page.getByText(/EDITABLE REVIEW DRAFT/)).toHaveCount(0);
   await page.screenshot({
@@ -337,7 +337,7 @@ test("full-motion grand sequence completes with WebGL and a persistent mute cont
   await controls(page);
   await page
     .locator(".preview-grid button")
-    .filter({ hasText: "Full-Time Membership, 3 months" })
+    .filter({ hasText: "Niagara Passport Membership, 1 month (Haven + NFIH)" })
     .click();
   await expect(
     page.getByRole("heading", { name: "Here we go." }),
@@ -350,6 +350,11 @@ test("full-motion grand sequence completes with WebGL and a persistent mute cont
   await expect(page.getByText("TEST ONLY · NO PRIZE AWARDED")).toBeVisible({
     timeout: 20000,
   });
+  const angle = Number(
+    await page.locator(".wheel-stage").getAttribute("data-angle"),
+  );
+  expect(Math.cos(angle)).toBeCloseTo(-1);
+  expect(Math.sin(angle)).toBeCloseTo(0);
   await expect(page.locator(".celebration-5 .shockwave")).toBeAttached();
   await expect(page.locator(".grand-wordmark")).toBeAttached();
   await page.screenshot({
@@ -367,7 +372,7 @@ test("home pairs entry with one wheel; constrained height preserves reachable co
   page,
 }, info) => {
   await page.goto("/");
-  await expect(page.locator(".vault-card")).toHaveCount(13);
+  await expect(page.locator(".vault-card")).toHaveCount(12);
   await expect(page.locator(".wheel-stage")).toHaveCount(1);
   await expect(page.locator(".wheel-canvas canvas")).toHaveCount(1);
   await expect(page.locator('[data-prize-id="passport"]')).toContainText(

@@ -36,7 +36,7 @@ test("hero wheel and full gallery use one document scroll, with every prize and 
     "data-rendering",
     "paused",
   );
-  await expect(page.locator(".vault-card")).toHaveCount(13);
+  await expect(page.locator(".vault-card")).toHaveCount(12);
   for (const prize of PRIZES) {
     const card = page.locator(`[data-prize-id="${prize.id}"]`);
     await expect(card.locator("h4")).toHaveText(prize.displayName);
@@ -72,7 +72,7 @@ test("hero wheel and full gallery use one document scroll, with every prize and 
     await expect(card.locator(".vault-metal-label")).toBeVisible();
   }
   await expect(page.locator(".vault-header")).toContainText(
-    "34 featured prizes",
+    "53 featured prizes",
   );
   await expect(page.locator(".vault-header")).toContainText(
     "Everyone wins at least a Haven Coworking Day Pass",
@@ -213,15 +213,16 @@ test("idle rotation is silent, pauses offscreen and hidden, and reduced motion s
   expect(recordedSpins).toBe(0);
 });
 
-test("inactivity returns the document to entry and a keyboard-sized viewport keeps controls reachable", async ({
+test("inactivity preserves browsing position and a keyboard-sized viewport keeps controls reachable", async ({
   page,
 }) => {
+  test.setTimeout(90000);
   await page.clock.install();
   await page.goto("/");
   await page.getByRole("textbox", { name: "First name" }).fill("Kept");
   await page.evaluate(() => window.scrollTo(0, 1600));
-  await page.clock.fastForward(20100);
-  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  await page.clock.fastForward(60000);
+  expect(await page.evaluate(() => window.scrollY)).toBe(1600);
   await page.clock.resume();
   await page.setViewportSize({ width: 1112, height: 500 });
   for (const selector of [
@@ -333,7 +334,7 @@ test("award updates remaining counts, keeps depleted cards in order, and resets 
     page.locator('[data-prize-id="full-3"] .vault-count'),
   ).toHaveText("0 remaining");
   await expect(page.locator(".vault-summary strong")).toHaveText(
-    "34 featured prizes · 33 remaining",
+    "53 featured prizes · 52 remaining",
   );
   expect(
     await page

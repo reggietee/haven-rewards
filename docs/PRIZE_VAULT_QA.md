@@ -4,7 +4,7 @@ The opening landscape hero uses approximately 56% of its usable width for the fo
 
 ## Changed files
 
-- `src/App.tsx`: persistent wheel scene, home/active presentation transition, gallery below the hero, scroll affordance, document reset on entrant completion/inactivity, natural focused-field handling when the visual viewport changes.
+- `src/App.tsx`: persistent wheel scene, home/active presentation transition, gallery below the hero, scroll affordance, document reset on entrant completion (no timed browsing reset), natural focused-field handling when the visual viewport changes.
 - `src/components/Wheel.tsx`: silent 90-second attract rotation, viewport/visibility/operator-overlay suspension, static reduced-motion mode, preservation of the idle angle into active animation, WebGL fallback handling.
 - `src/lib/wheelMath.ts`: constant idle advance and recorded-result landing from any initial angle.
 - `src/components/PrizeVault.tsx`: full-width editorial tier chapters, two large Platinum features plus supporting prizes, three Gold partner features, four Silver experiences and two Bronze features. All quantities, values, sponsor associations and depleted states remain data driven.
@@ -22,7 +22,7 @@ At 1112 × 834, the entry action is above the fold, no prize cards sit alongside
 
 Portrait at 834 × 1112 stacks form, wheel and gallery. A constrained 1112 × 500 viewport keeps fields, consent and the primary action reachable by scrolling. Written tier names and distinct emblems stay legible in grayscale. Haven's dark mark has a light backing; the white Zannes and Story Mode artwork sits on dark surfaces. The idle scene pauses offscreen and when hidden, and reduced motion stops both idle rotation and decorative shimmer. The saved result determines the final angle, including after a nonzero idle position.
 
-Production build and strict TypeScript pass. All 29 Vitest tests pass, including the 250-spin simulation (34 finite awards, 216 fallback passes, no over-awards). The final focused browser runs pass all 10 home/gallery cases and all 12 existing kiosk cases across Chromium and WebKit. Full results are recorded in [VERIFICATION.md](VERIFICATION.md). Browser keyboard checks simulate viewport contraction; physical iPad keyboard, GPU, Guided Access and outdoor/audio checks remain on the event-day hardware checklist.
+Production build and strict TypeScript pass. All 32 Vitest tests pass, including the 250-spin simulation (53 finite awards, 197 fallback passes, no over-awards). The final focused browser runs pass all 10 home/gallery cases and all 12 existing kiosk cases across Chromium and WebKit. Full results are recorded in [VERIFICATION.md](VERIFICATION.md). Browser keyboard checks simulate viewport contraction; physical iPad keyboard, GPU, Guided Access and outdoor/audio checks remain on the event-day hardware checklist.
 
 ## Visual evidence
 
@@ -33,3 +33,5 @@ Production build and strict TypeScript pass. All 29 Vitest tests pass, including
 - [Constrained keyboard-height viewport](qa/home-wheel-keyboard.png)
 
 Earlier `vault-*.png` screenshots in the QA directory document the superseded nested-panel design.
+
+September 22 catalogue follow-up: the two gold Grand sectors now sit opposite each other; the gallery has 12 prize types, 53 finite units and $7,980 total value. The home page does not jump after inactivity. Current visual evidence: [landscape catalogue](qa/prize-catalogue-landscape.png), [portrait catalogue](qa/prize-catalogue-portrait.png), [Passport landing](qa/passport-grand-opposite.png).

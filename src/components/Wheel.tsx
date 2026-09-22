@@ -8,7 +8,7 @@ import {
 } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { PRIZES } from "../config";
+import { WHEEL_PRIZES } from "../config";
 import {
   idleAdvance,
   landingRotation,
@@ -30,16 +30,16 @@ export function wheelArt() {
   c.width = c.height = 1536;
   const ctx = c.getContext("2d")!;
   const r = 768,
-    step = TAU / PRIZES.length;
+    step = TAU / WHEEL_PRIZES.length;
   ctx.translate(r, r);
-  PRIZES.forEach((p, i) => {
+  WHEEL_PRIZES.forEach((p, i) => {
     const start = -Math.PI / 2 + (i - 0.5) * step;
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.arc(0, 0, r - 12, start, start + step);
     ctx.closePath();
     const g = ctx.createRadialGradient(0, 0, 100, 0, 0, r);
-    if (i === 0) {
+    if (p.tier === 5) {
       g.addColorStop(0, "#f5d793");
       g.addColorStop(1, "#b58c3c");
     } else {
@@ -55,10 +55,10 @@ export function wheelArt() {
     ctx.rotate(start + step / 2);
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
-    ctx.fillStyle = i === 0 ? "#201a1c" : "#f8e9c5";
+    ctx.fillStyle = p.tier === 5 ? "#201a1c" : "#f8e9c5";
     ctx.font = "600 42px Manrope, sans-serif";
     ctx.fillText(p.short, r - 70, 0);
-    ctx.fillStyle = i === 0 ? "#352616" : "#baa680";
+    ctx.fillStyle = p.tier === 5 ? "#352616" : "#baa680";
     ctx.beginPath();
     ctx.arc(r - 32, 0, 5, 0, TAU);
     ctx.fill();
@@ -230,7 +230,7 @@ export default function Wheel({
   useEffect(() => {
     if (!spinning) {
       if (!idle && tier) {
-        rotation.current = (index * TAU) / PRIZES.length;
+        rotation.current = (index * TAU) / WHEEL_PRIZES.length;
         setAngle(rotation.current);
       }
       return;
@@ -238,7 +238,7 @@ export default function Wheel({
     const start = performance.now(),
       duration = reduced ? 1100 : 6800,
       from = rotation.current,
-      end = landingRotation(index, PRIZES.length, from);
+      end = landingRotation(index, WHEEL_PRIZES.length, from);
     let frame = 0,
       last = -1;
     const animate = (now: number) => {
@@ -246,7 +246,8 @@ export default function Wheel({
       rotation.current = from + (end - from) * spinProgress(t);
       if (stage.current) stage.current.dataset.angle = String(rotation.current);
       const crossing = Math.floor(
-        (rotation.current + TAU / PRIZES.length / 2) / (TAU / PRIZES.length),
+        (rotation.current + TAU / WHEEL_PRIZES.length / 2) /
+          (TAU / WHEEL_PRIZES.length),
       );
       if (crossing !== last && !document.hidden) {
         tick();
@@ -284,7 +285,7 @@ export default function Wheel({
       aria-label={
         spinning
           ? "Prize wheel spinning"
-          : `Prize wheel${tier ? ": " + PRIZES[index].name : ""}`
+          : `Prize wheel${tier ? ": " + WHEEL_PRIZES[index].name : ""}`
       }
     >
       <div className="orbit orbit-one" />

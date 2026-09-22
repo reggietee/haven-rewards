@@ -46,21 +46,20 @@ Every eligible entrant who completes a valid spin will be shown a potential priz
 
 | Potential prize                                     |                     Number available | Approximate retail value in CAD before HST | Additional condition                                                                    |
 | --------------------------------------------------- | -----------------------------------: | -----------------------------------------: | --------------------------------------------------------------------------------------- |
-| Full-Time Membership, 3 months                      |                                    1 |                                       $500 | Haven approval                                                                          |
+| 3-month Full-Time Haven Membership in NOTL          |                                    1 |                                       $500 | Haven approval                                                                          |
 | Niagara Passport Membership, 1 month (Haven + NFIH) |                                    3 |                                  $400 each | Haven/NFIH approval; provider’s reasonable fulfillment terms supplied to the winner     |
-| Full-Time Membership, 1 month                       |                                    4 |                                  $169 each | Haven approval                                                                          |
-| Part-Time Membership, 1 month                       |                                    3 |                                   $60 each | Haven approval                                                                          |
-| Business Mailing Address, 6 months                  |                                    1 |                                       $450 | Haven approval, ID, and business documents                                              |
-| Zannes Law Firm legal services gift card            |                                    1 |                                       $250 | Conflict check and firm terms                                                           |
-| Zannes Law Firm 45-minute business consultation     |                                    1 |                                       $350 | Conflict check and firm terms                                                           |
-| Story Mode marketing audit                          |                                    1 |                                       $200 | Provider’s reasonable fulfillment terms supplied to the winner                          |
+| 1-month Full-Time Haven Membership in NOTL          |                                    3 |                                  $169 each | Haven approval                                                                          |
+| 1-Month Part-Time Membership in NOTL                |                                    5 |                                   $60 each | Haven approval                                                                          |
+| 6-month NOTL Business Mailing Address               |                                    1 |                                       $450 | Haven approval, ID, and business documents                                              |
+| Zannes Law Firm Business Legal Services Gift Card   |                                    5 |                                       $250 | Conflict check and firm terms                                                           |
+| Zannes Law Firm 45-minute business consultation     |                                    3 |                                       $350 | Conflict check and firm terms                                                           |
+| Story Mode marketing audit                          |                                    5 |                                       $200 | Provider’s reasonable fulfillment terms supplied to the winner                          |
 | Private Office for the Day                          |                                    2 |                                   $99 each | Advance booking and availability                                                        |
-| Boardroom, 2 hours                                  |                                    2 |                                  $120 each | Advance booking and availability                                                        |
-| Haven Event + Coworking Day Bundle                  |                                   10 |                                   $45 each | One Haven event ticket worth up to $20 plus one $25 coworking day; availability applies |
+| Haven Event + Coworking Day Bundle                  |                                   20 |                                   $45 each | One Haven event ticket worth up to $20 plus one $25 coworking day; availability applies |
 | 5-Day Pass Pack                                     |                                    5 |                                  $125 each | Booking rules in section 10                                                             |
 | 1-Day Coworking Pass                                | One for every other eligible entrant |                                   $25 each | Booking rules in section 10                                                             |
 
-There are 34 finite featured prize units with a total approximate retail value of $5,319 before HST. The number of fallback 1-Day Coworking Passes depends on the number of eligible entrants who do not receive a featured prize.
+There are 53 finite featured prize units with a total approximate retail value of $7,980 before HST. The number of fallback 1-Day Coworking Passes depends on the number of eligible entrants who do not receive a featured prize.
 
 Prizes must be accepted as awarded, have no cash value, cannot be transferred, sold, substituted, combined with another offer, or exchanged for cash, except that the Sponsor may substitute a prize with one of equal or greater value if a listed prize becomes unavailable for reasons outside the Sponsor's reasonable control.
 
@@ -68,7 +67,7 @@ Prizes must be accepted as awarded, have no cash value, cannot be transferred, s
 
 The wheel animation is a visual presentation of the result selected by the Contest's prize engine. The apparent size, position, repetition, or arrangement of a prize on the visual wheel does not represent the mathematical odds of receiving that prize.
 
-The 34 finite featured prize units are divided approximately evenly among four release windows: 3:00–4:00 p.m., 4:00–5:00 p.m., 5:00–6:00 p.m., and 6:00–7:00 p.m. Each featured prize unit is assigned a release moment within its applicable window using a random process. After that moment occurs, the next eligible completed spin may receive that featured prize. If more than one featured prize is available, the prize awarded is selected randomly from the available units. A featured prize that is not awarded in its release window carries forward and remains available in the following window. Any featured prize not awarded by 7:00 p.m. will not be awarded.
+The 53 finite featured prize units are divided approximately evenly among four release windows: 3:00–4:00 p.m., 4:00–5:00 p.m., 5:00–6:00 p.m., and 6:00–7:00 p.m. Each featured prize unit is assigned a release moment within its applicable window using a random process. After that moment occurs, the next eligible completed spin may receive that featured prize. If more than one featured prize is available, the prize awarded is selected randomly from the available units. A featured prize that is not awarded in its release window carries forward and remains available in the following window. Any featured prize not awarded by 7:00 p.m. will not be awarded.
 
 Each featured prize can be awarded no more than the number of times shown in section 5. When no released featured prize is available for a completed spin, the entrant receives a potential 1-Day Coworking Pass.
 
@@ -112,7 +111,7 @@ The name on a booking must match the name on the contest entry. Identification m
 ### 11. Other prize use
 
 - Membership prizes must begin within 30 days after approval, unless the Sponsor agrees otherwise in writing.
-- Private Office and Boardroom prizes require advance booking, are subject to availability, and subject to reasonable fulfillment terms supplied to the winner.
+- Private Office prizes require advance booking, are subject to availability, and subject to reasonable fulfillment terms supplied to the winner.
 - The Haven Event + Coworking Day Bundle includes one ticket worth up to $20 for a Haven-hosted event occurring within 12 months after the Contest, subject to capacity and any event-specific restrictions, plus one coworking day subject to the booking terms in section 10.
 - Niagara Passport, Story Mode, and other third-party prizes are subject to the applicable provider's reasonable fulfillment terms, which will be provided to the potential winner.
 

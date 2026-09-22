@@ -2,7 +2,7 @@ export const EVENT_ID = "nfih-haven-2026-09-22";
 export const TIMEZONE = "America/Toronto";
 export const START = "2026-09-22T15:00:00-04:00";
 export const END = "2026-09-22T19:00:00-04:00";
-export const RULES_VERSION = "2026-09-21.3";
+export const RULES_VERSION = "2026-09-22.1";
 export const CONSENT_VERSION = "2026-09-21.1";
 export const AGE_TEXT = "I am 18 or older and agree to the official rules.";
 export function matchesPublishedPrizes(prizes: Prize[]) {
@@ -44,9 +44,9 @@ export const PRIZES: Prize[] = [
   {
     id: "full-3",
     displayTier: "platinum",
-    displayName: "3-Month Full-Time Haven Membership",
+    displayName: "3-month Full-Time Haven Membership in NOTL",
     displayOrder: 0,
-    name: "Full-Time Membership, 3 months",
+    name: "3-month Full-Time Haven Membership in NOTL",
     short: "3 MONTHS",
     quantity: 1,
     value: 500,
@@ -74,11 +74,11 @@ export const PRIZES: Prize[] = [
   {
     id: "full-1",
     displayTier: "platinum",
-    displayName: "1-Month Full-Time Haven Membership",
+    displayName: "1-month Full-Time Haven Membership in NOTL",
     displayOrder: 3,
-    name: "Full-Time Membership, 1 month",
+    name: "1-month Full-Time Haven Membership in NOTL",
     short: "FULL-TIME",
-    quantity: 4,
+    quantity: 3,
     value: 169,
     approval: "Haven approval",
     tier: 4,
@@ -88,11 +88,11 @@ export const PRIZES: Prize[] = [
   {
     id: "part-1",
     displayTier: "silver",
-    displayName: "1-Month Part-Time Membership",
+    displayName: "1-Month Part-Time Membership in NOTL",
     displayOrder: 10,
-    name: "Part-Time Membership, 1 month",
+    name: "1-Month Part-Time Membership in NOTL",
     short: "PART-TIME",
-    quantity: 3,
+    quantity: 5,
     value: 60,
     approval: "Haven approval",
     tier: 2,
@@ -102,9 +102,9 @@ export const PRIZES: Prize[] = [
   {
     id: "address",
     displayTier: "platinum",
-    displayName: "6-Month Business Mailing Address",
+    displayName: "6-month NOTL Business Mailing Address",
     displayOrder: 2,
-    name: "Business Mailing Address, 6 months",
+    name: "6-month NOTL Business Mailing Address",
     short: "ADDRESS",
     quantity: 1,
     value: 450,
@@ -118,11 +118,11 @@ export const PRIZES: Prize[] = [
   {
     id: "legal-card",
     displayTier: "gold",
-    displayName: "Zannes Law Firm Legal-Services Gift Card",
+    displayName: "Zannes Law Firm Business Legal Services Gift Card",
     displayOrder: 5,
-    name: "Zannes Law Firm legal-services gift card",
+    name: "Zannes Law Firm Business Legal Services Gift Card",
     short: "LEGAL CARD",
-    quantity: 1,
+    quantity: 5,
     value: 250,
     approval: "Conflict check",
     tier: 3,
@@ -137,7 +137,7 @@ export const PRIZES: Prize[] = [
     displayOrder: 4,
     name: "Zannes Law Firm 45-minute business consultation",
     short: "CONSULTATION",
-    quantity: 1,
+    quantity: 3,
     value: 350,
     approval: "Conflict check",
     tier: 4,
@@ -152,7 +152,7 @@ export const PRIZES: Prize[] = [
     displayOrder: 6,
     name: "Story Mode marketing audit",
     short: "MARKETING",
-    quantity: 1,
+    quantity: 5,
     value: 200,
     approval: "",
     tier: 3,
@@ -176,28 +176,13 @@ export const PRIZES: Prize[] = [
       "Arrange advance booking with Haven, subject to availability and reasonable fulfillment terms supplied to the winner.",
   },
   {
-    id: "boardroom",
-    displayTier: "silver",
-    displayName: "Boardroom for 2 Hours",
-    displayOrder: 8,
-    name: "Boardroom, 2 hours",
-    short: "BOARDROOM",
-    quantity: 2,
-    value: 120,
-    approval: "",
-    tier: 3,
-    sponsor: "haven",
-    claim:
-      "Arrange advance booking with Haven, subject to availability and reasonable fulfillment terms supplied to the winner.",
-  },
-  {
     id: "bundle",
     displayTier: "bronze",
     displayName: "Haven Event + Coworking Day Bundle",
     displayOrder: 11,
     name: "Haven Event + Coworking Day Bundle",
     short: "EVENT + DAY",
-    quantity: 10,
+    quantity: 20,
     value: 45,
     approval: "",
     tier: 2,
@@ -243,3 +228,23 @@ export const currency = (n: number) =>
     currency: "CAD",
     maximumFractionDigits: 0,
   }).format(n);
+
+// Visual order is independent of catalogue order and never determines odds.
+export const WHEEL_PRIZES = [
+  "full-3",
+  "full-1",
+  "part-1",
+  "address",
+  "legal-card",
+  "legal-call",
+  "passport",
+  "audit",
+  "office",
+  "bundle",
+  "pack",
+  "day",
+].map((id) => PRIZES.find((prize) => prize.id === id)!);
+export const FEATURED_COUNT = PRIZES.reduce(
+  (sum, p) => sum + (p.quantity ?? 0),
+  0,
+);

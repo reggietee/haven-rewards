@@ -9,6 +9,8 @@ import {
   CONSENT_TEXT,
   END,
   PRIZES,
+  WHEEL_PRIZES,
+  FEATURED_COUNT,
   matchesPublishedPrizes,
   START,
   currency,
@@ -30,7 +32,7 @@ const Wheel = lazy(() => import("./components/Wheel"));
 import Celebration from "./components/Celebration";
 const Admin = lazy(() => import("./components/Admin"));
 const Rules = lazy(() => import("./components/Rules"));
-const testDb = new HavenDB("haven-demo-day-test-v2");
+const testDb = new HavenDB("haven-demo-day-test-v3");
 const EMPTY = { first: "", last: "", email: "", age: false, waitlist: false };
 type Screen = "welcome" | "ready" | "spinning" | "result";
 export default function App() {
@@ -53,31 +55,6 @@ export default function App() {
     [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
-    if (screen !== "welcome" || rules || admin) return;
-    let timer: ReturnType<typeof setTimeout>;
-    const activity = () => {
-      clearTimeout(timer);
-      timer = setTimeout(
-        () => window.scrollTo({ top: 0, behavior: "instant" }),
-        20000,
-      );
-    };
-    const events = [
-      "pointerdown",
-      "pointermove",
-      "touchmove",
-      "keydown",
-      "wheel",
-      "input",
-    ];
-    events.forEach((e) =>
-      document.addEventListener(e, activity, { passive: true }),
-    );
-    activity();
-    return () => {
-      clearTimeout(timer);
-      events.forEach((e) => document.removeEventListener(e, activity));
-    };
   }, [screen, rules, admin]);
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -107,7 +84,7 @@ export default function App() {
   const lock = useRef(false),
     taps = useRef({ count: 0, last: 0 });
   const prize = preview ?? outcome?.prize;
-  const index = PRIZES.findIndex((p) => p.id === prize?.id);
+  const index = WHEEL_PRIZES.findIndex((p) => p.id === prize?.id);
   const activeTime = test ? Date.parse(END) - 1000 : now;
   const open =
     !!schedule?.length &&
@@ -118,7 +95,8 @@ export default function App() {
     activeTime >= Date.parse(START) &&
     activeTime < Date.parse(END);
   const remaining = schedule?.length
-    ? (units?.filter((u) => !u.awardedTo && !u.disabled).length ?? 34)
+    ? (units?.filter((u) => !u.awardedTo && !u.disabled).length ??
+      FEATURED_COUNT)
     : (device?.prizes ?? PRIZES).reduce((sum, p) => sum + (p.quantity ?? 0), 0);
   useEffect(() => {
     let disposed = false;

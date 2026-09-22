@@ -1,3 +1,4 @@
+import legacyPrizes from "./legacy-prizes.json";
 import {
   db,
   type HavenDB,
@@ -13,6 +14,7 @@ import {
   END,
   EVENT_ID,
   PRIZES,
+  FEATURED_COUNT,
   matchesPublishedPrizes,
   RULES_VERSION,
   START,
@@ -94,7 +96,8 @@ export async function setup(d = db) {
         await d.device.add(device);
       } else if (!(await d.schedules.count())) {
         // Upgrade only the untouched previous default, never a saved schedule or custom pool.
-        const previousValue = PRIZES.map((p) =>
+        const previousDefault = legacyPrizes as Prize[];
+        const previousValue = previousDefault.map((p) =>
           p.id === "full-3" ? { ...p, value: 507 } : p,
         );
         const previous = previousValue.map((p) =>
@@ -124,13 +127,16 @@ export async function setup(d = db) {
         const untouchedPrevious =
           (device.configVersion === "2026-09-21.2" || !device.configVersion) &&
           definition(device.prizes) === definition(previousValue);
-        if (untouchedLegacy || untouchedPrevious) {
+        const untouchedLatest =
+          device.configVersion === "2026-09-21.3" &&
+          definition(device.prizes) === definition(previousDefault);
+        if (untouchedLegacy || untouchedPrevious || untouchedLatest) {
           device.prizes = structuredClone(PRIZES);
           device.configVersion = RULES_VERSION;
           await d.device.put(device);
           await audit(d, "default_configuration_updated", {
             rulesVersion: RULES_VERSION,
-            unitCount: 34,
+            unitCount: FEATURED_COUNT,
           });
         }
       }

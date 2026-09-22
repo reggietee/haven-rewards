@@ -1,3 +1,5 @@
+import legacyPrizes from "../src/lib/legacy-prizes.json";
+import type { Prize } from "../src/config";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { HavenDB } from "../src/lib/db";
 import {
@@ -42,7 +44,7 @@ describe("immutable schedule", () => {
     const fresh = new HavenDB("migration-" + crypto.randomUUID());
     try {
       await setup(fresh);
-      const previous = PRIZES.map((p) =>
+      const previous = (legacyPrizes as Prize[]).map((p) =>
         p.id === "passport"
           ? {
               ...p,
@@ -91,7 +93,7 @@ describe("immutable schedule", () => {
     const fresh = new HavenDB("value-migration-" + crypto.randomUUID());
     try {
       await setup(fresh);
-      const previous = PRIZES.map((p) =>
+      const previous = (legacyPrizes as Prize[]).map((p) =>
         p.id === "full-3" ? { ...p, value: 507 } : p,
       );
       await fresh.device.update("device", {
@@ -120,6 +122,43 @@ describe("immutable schedule", () => {
       await fresh.delete();
     }
   });
+  it("migrates the untouched 34-prize default once, but never changes an initialized schedule", async () => {
+    const fresh = new HavenDB("catalogue-migration-" + crypto.randomUUID());
+    try {
+      await setup(fresh);
+      await fresh.device.update("device", {
+        configVersion: "2026-09-21.3",
+        prizes: legacyPrizes as Prize[],
+      });
+      await setup(fresh);
+      expect((await fresh.device.get("device"))?.prizes).toEqual(PRIZES);
+      expect((await fresh.audit.toArray())[0].detail.unitCount).toBe(53);
+      await setup(fresh);
+      expect(await fresh.audit.count()).toBe(1);
+      const schedule = await initialize(fresh);
+      schedule.prizes = legacyPrizes as Prize[];
+      schedule.units = generateUnits(schedule.prizes, schedule.id);
+      await fresh.schedules.put(schedule);
+      await fresh.units.clear();
+      await fresh.units.bulkAdd(schedule.units);
+      await fresh.device.update("device", {
+        configVersion: "2026-09-21.3",
+        prizes: legacyPrizes as Prize[],
+      });
+      await setup(fresh);
+      expect(await initialize(fresh)).toEqual(schedule);
+      expect((await fresh.device.get("device"))?.prizes).toEqual(legacyPrizes);
+      expect(await fresh.units.count()).toBe(34);
+      expect(await fresh.units.toArray()).toEqual(
+        [...schedule.units].sort((a, b) => a.id.localeCompare(b.id)),
+      );
+      await expect(enter(person(), fresh, start)).rejects.toThrow(
+        "review the event configuration",
+      );
+    } finally {
+      await fresh.delete();
+    }
+  });
   it("does not overwrite operator-customized uninitialized quantities", async () => {
     const fresh = new HavenDB("custom-" + crypto.randomUUID());
     try {
@@ -140,16 +179,16 @@ describe("immutable schedule", () => {
       await fresh.delete();
     }
   });
-  it("creates exactly 34 unique units, $5,319 and 8/8/9/9 valid release windows", () => {
+  it("creates exactly 53 unique units, $7,980 and 13/13/13/14 valid release windows", () => {
     const units = generateUnits(PRIZES, crypto.randomUUID());
-    expect(units).toHaveLength(34);
-    expect(new Set(units.map((u) => u.id)).size).toBe(34);
+    expect(units).toHaveLength(53);
+    expect(new Set(units.map((u) => u.id)).size).toBe(53);
     expect(PRIZES.reduce((s, p) => s + (p.quantity ?? 0) * p.value, 0)).toBe(
-      5319,
+      7980,
     );
     expect(
       [0, 1, 2, 3].map((w) => units.filter((u) => u.window === w).length),
-    ).toEqual([8, 8, 9, 9]);
+    ).toEqual([13, 13, 13, 14]);
     for (const u of units) {
       expect(Date.parse(u.releaseAt)).toBeGreaterThanOrEqual(
         start + u.window * 3600000,
@@ -166,7 +205,7 @@ describe("immutable schedule", () => {
     db = new HavenDB(name);
     await Promise.all([initialize(db), initialize(db)]);
     expect(await db.schedules.toArray()).toEqual(initial);
-    expect(await db.units.count()).toBe(34);
+    expect(await db.units.count()).toBe(53);
   });
 });
 describe("entry and award transactions", () => {
@@ -299,11 +338,11 @@ describe("entry and award transactions", () => {
     expect(new Set(spins.map((s) => s.id)).size).toBe(250);
     expect(new Set(spins.map((s) => s.code)).size).toBe(250);
     const finite = spins.filter((s) => s.unitId);
-    expect(finite).toHaveLength(34);
-    expect(new Set(finite.map((s) => s.unitId)).size).toBe(34);
+    expect(finite).toHaveLength(53);
+    expect(new Set(finite.map((s) => s.unitId)).size).toBe(53);
     for (const p of PRIZES.filter((p) => p.quantity !== null))
       expect(spins.filter((s) => s.prizeId === p.id).length).toBe(p.quantity);
-    expect(spins.filter((s) => s.prizeId === "day")).toHaveLength(216);
+    expect(spins.filter((s) => s.prizeId === "day")).toHaveLength(197);
   }, 30000);
 });
 it("escapes commas, quotes, newlines and spreadsheet formula injection in CSV", () => {
