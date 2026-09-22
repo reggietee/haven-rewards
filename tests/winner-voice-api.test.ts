@@ -13,6 +13,7 @@ let deviceId: string;
 const mp3 = Buffer.concat([Buffer.from("ID3"), Buffer.alloc(120)]);
 const provider = vi.fn();
 beforeEach(() => {
+  vi.spyOn(console, "warn").mockImplementation(() => {});
   deviceId = crypto.randomUUID();
   vi.stubEnv("SESSION_SECRET", "unit-test-session-only");
   vi.stubEnv("KIOSK_DEVICE_ID", deviceId);
@@ -29,6 +30,7 @@ beforeEach(() => {
   vi.stubGlobal("fetch", provider);
 });
 afterEach(() => {
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
   vi.useRealTimers();
@@ -213,7 +215,7 @@ it("aborts a slow upstream within the spin and returns a generic failure", async
       ),
   );
   const result = call(input());
-  await vi.advanceTimersByTimeAsync(4501);
+  await vi.advanceTimersByTimeAsync(5501);
   expect((await result).status).toBe(503);
   expect(provider).toHaveBeenCalledTimes(1);
 });

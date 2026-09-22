@@ -175,7 +175,7 @@ export class WinnerVoice {
     )
       return;
     report("preparing");
-    session.requestTimer = setTimeout(() => session.controller.abort(), 5000);
+    session.requestTimer = setTimeout(() => session.controller.abort(), 6000);
     try {
       const response = await this.deps.fetch("/api/winner-voice", {
         method: "POST",

@@ -5,6 +5,7 @@ import {
   generateVoice,
   voiceConfigured,
   VoiceLimiter,
+  VoiceFailure,
   voiceSchema,
 } from "../server/winnerVoice.js";
 export const config = { maxDuration: 10 };
@@ -16,6 +17,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const fail = (code: number) =>
     res.status(code).json({ error: "Announcement unavailable." });
   if (req.method !== "POST") return fail(405);
+  let deadline = false;
   try {
     // Strict browser origin checks plus a PIN-issued signed kiosk token. No cookie-only authorization.
     if (
@@ -51,7 +53,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return fail(429);
     }
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 4500);
+    const timer = setTimeout(() => {
+      deadline = true;
+      controller.abort();
+    }, 5500);
     const disconnected = () => controller.abort();
     res.on?.("close", disconnected);
     try {
@@ -62,8 +67,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       clearTimeout(timer);
       res.off?.("close", disconnected);
     }
-  } catch {
+  } catch (error) {
     if (res.destroyed || res.writableEnded) return;
+    // Fixed diagnostics only: never log identities, request bodies, credentials or upstream messages.
+    console.warn("winner_voice_unavailable", {
+      reason: deadline
+        ? "deadline"
+        : error instanceof VoiceFailure
+          ? error.reason
+          : "transport",
+      status: error instanceof VoiceFailure ? error.status : undefined,
+    });
     return fail(503);
   }
 }

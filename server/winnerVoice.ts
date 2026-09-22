@@ -53,6 +53,14 @@ export class VoiceLimiter {
     return true;
   }
 }
+export class VoiceFailure extends Error {
+  constructor(
+    public reason: "provider_status" | "audio_format",
+    public status?: number,
+  ) {
+    super("Announcement unavailable");
+  }
+}
 export async function generateVoice(
   firstName: string,
   prizeId: string,
@@ -94,7 +102,10 @@ export async function generateVoice(
     Number(response.headers.get("content-length")) > 512000
   ) {
     await response.body?.cancel();
-    throw new Error("unavailable");
+    throw new VoiceFailure(
+      response.ok ? "audio_format" : "provider_status",
+      response.status,
+    );
   }
   const reader = response.body?.getReader();
   if (!reader) throw new Error("unavailable");

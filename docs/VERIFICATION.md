@@ -9,7 +9,9 @@
 - Visually inspected the form and spoken result in Chromium/WebKit at 1112 × 834, with portrait and constrained-height coverage. The longest grand-prize caption, replay and Done fit the landscape viewport; Done ends at about 805 px even with the test banner. See [updated home](qa/voice-consent-home.png) and [WebKit spoken result](qa/voice-webkit-result.png).
 - Personalized audio is memory-only and excluded from service-worker caching, IndexedDB, Sheets and exports. A production-bundle scan finds no local server credentials or provider-key header.
 
-Live provider/deployment evidence follows once verified. Physical iPad speaker quality and installed-PWA audio behavior still require the event-day device check.
+**All 30 browser cases pass** across Chromium and WebKit (28 in the full run plus successful targeted reruns of the two affected cases; the four-case offline rerun passed completely). The initial missing-configuration test used the 1.1-second reduced spin and correctly cancelled generation before an HTTP status could be asserted; it now uses normal spin duration to exercise the actual 503 response, while separate reduced-motion deadline tests remain. One initial WebKit cache-readiness case timed out on the host; its full offline/reconnect/export flow passed on rerun after freeing disposable npm cache and keeping the built output stable.
+
+Physical iPad speaker quality and installed-PWA audio behavior still require the event-day device check.
 
 ## Existing inventory and kiosk coverage
 
@@ -48,3 +50,13 @@ Header/value follow-up: the header Haven mark renders white with no backing; the
 Catalogue revision: 12 prize types / 53 finite units / $7,980 total. Boardroom removed; quantities and NOTL names updated. Both Grand wheel sectors are gold and exactly opposite. Recorded Passport landing is checked at the new sector in both browsers. The home scroll position stays unchanged after 60 seconds of inactivity; entrant completion still resets to the top. Untouched uninitialized defaults migrate once with an audit record. Initialized schedules and custom pools remain unchanged and are blocked from new awards if they conflict with the current rules.
 
 Final catalogue browser run: 21 cases passed; the last WebKit portrait case was interrupted by host ENOSPC while writing its screenshot. After removing disposable Haven test/conversion artifacts, that case passed on its own (6.4 seconds), completing all 22 cases. This was a host-storage failure, not an app assertion failure.
+
+
+## Changed files for voice and consent
+
+- Result/form UI: `src/App.tsx`, `src/styles.css`, `src/components/Admin.tsx`.
+- Speech preparation, templates and mix: `src/lib/winnerVoice.ts`, `src/lib/announcements.ts`, `src/lib/audio.ts`.
+- Protected endpoint/readiness: `api/winner-voice.ts`, `api/health.ts`, `server/winnerVoice.ts`, `server/devMiddleware.ts`.
+- Consent validation/proof and additive voice markers: `src/config.ts`, `src/rules.md`, `src/lib/engine.ts`, `src/lib/db.ts`, `src/lib/sync.ts`.
+- Tests: `tests/winner-voice-api.test.ts`, `tests/winner-voice.test.ts`, `tests/voice-audio.test.ts`, `tests/engine.test.ts`, `tests/e2e/voice.spec.ts`, `tests/e2e/kiosk.spec.ts`, `tests/e2e/vault.spec.ts`, and the generated test-only MP3 fixture.
+- Setup/operations: `.env.example`, `VOICE_SETUP.md`, `README.md`, `EVENT_DAY_CHECKLIST.md`, this record and new QA screenshots.
