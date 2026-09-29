@@ -1,4 +1,4 @@
-import { PRIZES, currency, type Prize } from "../config";
+import { PRIZES, currency, type Prize } from "../config.js";
 /** Redemption copy is server-rendered from this table only; senders never supply message bodies.
  * `route` records how a prize could be fulfilled, so automation can replace manual replies later. */
 export type Route = "code" | "approval" | "booking" | "partner" | "documents";
