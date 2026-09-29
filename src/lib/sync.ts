@@ -8,6 +8,7 @@ export type Readiness = {
   configured: boolean;
   adminConfigured: boolean;
   voiceConfigured?: boolean;
+  emailConfigured?: boolean;
 };
 export async function getReadiness(): Promise<Readiness> {
   try {

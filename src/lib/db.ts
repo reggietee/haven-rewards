@@ -72,6 +72,16 @@ export interface Spin {
   scheduleId: string;
   completedAt?: string;
 }
+export interface WinnerEmail {
+  email: string;
+  name: string;
+  prizeId: string;
+  code: string;
+  status: "sent" | "failed";
+  sentAt: string;
+  providerId?: string;
+  error?: string;
+}
 export type Tab = "Entries" | "Consents" | "Spins" | "Inventory" | "Audit";
 export interface Queue {
   seq?: number;
@@ -101,6 +111,7 @@ export class HavenDB extends Dexie {
   queue!: Table<Queue, number>;
   audit!: Table<Audit, string>;
   voiceAttempts!: Table<{ entryId: string; attemptedAt: string }, string>;
+  winnerEmails!: Table<WinnerEmail, string>;
   constructor(name = "haven-demo-day-v1") {
     super(name);
     this.version(1).stores({
@@ -114,6 +125,7 @@ export class HavenDB extends Dexie {
       audit: "id,action",
     });
     this.version(2).stores({ voiceAttempts: "entryId" });
+    this.version(3).stores({ winnerEmails: "email,status,sentAt" });
   }
 }
 export const db = new HavenDB();

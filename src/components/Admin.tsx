@@ -21,6 +21,7 @@ import {
   type Prize,
 } from "../config";
 import { voiceDiagnostic } from "../lib/winnerVoice";
+import WinnerEmail from "./WinnerEmail";
 interface Props {
   onClose: () => void;
   onPreview: (p: Prize) => void;
@@ -455,6 +456,7 @@ export default function Admin({ onClose, onPreview, onTest, cached }: Props) {
               and is never returned to this device.
             </p>
           </section>
+          <WinnerEmail configured={!!ready.emailConfigured} />
           <section>
             <h2>Close and purge event</h2>
             <p>
