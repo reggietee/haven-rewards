@@ -23,6 +23,12 @@ import {
   type Prize,
 } from "../config";
 import { uuid, shuffled, randomInt, prizeCode } from "./random";
+const PREMIUM_RELEASE_DEADLINE = Date.parse("2026-09-22T18:30:00-04:00");
+function effectiveReleaseTime(releaseAt: number, prize: Prize | undefined) {
+  return prize?.displayTier === "platinum" || prize?.displayTier === "gold"
+    ? Math.min(releaseAt, PREMIUM_RELEASE_DEADLINE)
+    : releaseAt;
+}
 export const normalizeEmail = (s: string) => s.trim().toLowerCase();
 export const nameKey = (s: string) =>
   s
@@ -154,16 +160,21 @@ export function generateUnits(prizes: Prize[], scheduleId: string): Unit[] {
   let index = 0;
   const units: Unit[] = [];
   for (let window = 0; window < 4; window++)
-    for (let n = 0; n < base + (window >= 4 - extra ? 1 : 0); n++)
+    for (let n = 0; n < base + (window >= 4 - extra ? 1 : 0); n++) {
+      const prizeId = pool[index++];
       units.push({
         id: uuid(),
         scheduleId,
-        prizeId: pool[index++],
+        prizeId,
         window,
         releaseAt: new Date(
-          Date.parse(START) + window * 3600000 + randomInt(3600000),
+          effectiveReleaseTime(
+            Date.parse(START) + window * 3600000 + randomInt(3600000),
+            prizes.find((p) => p.id === prizeId),
+          ),
         ).toISOString(),
       });
+    }
   return units;
 }
 export async function initialize(d = db) {
@@ -330,7 +341,14 @@ export async function award(
           "Please ask booth staff to review the event configuration.",
         );
       const available = (await d.units.toArray()).filter(
-        (u) => !u.awardedTo && !u.disabled && Date.parse(u.releaseAt) <= now,
+        (u) =>
+          !u.awardedTo &&
+          !u.disabled &&
+          // Apply the deadline to older schedules without rewriting their snapshot or inventory.
+          effectiveReleaseTime(
+            Date.parse(u.releaseAt),
+            schedule.prizes.find((p) => p.id === u.prizeId),
+          ) <= now,
       );
       const unit = available.length
         ? available[randomInt(available.length)]
