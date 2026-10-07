@@ -12,14 +12,15 @@ const TOUR = {
   label: "Book your tour",
   url: "https://cal.com/havenworkspace/tour",
 };
-const tourClaim = (period: string) =>
-  `Pick any time that suits you on our tour calendar and come see the space. We will go through the member agreement while you are here. No payment details are needed, and your ${period} does not start until the day you first come in to work, so nothing is ticking away while we find a time.`;
-const passWindow =
-  "Coworking days run Tuesdays and Thursdays, 9 a.m.–6 p.m., between October 1 and December 17, 2026. Book each day in advance; unused days expire December 17.";
+const tourClaim = (period: string, plural = false) =>
+  `Pick any time that suits you on our tour calendar and come see the space. We will go through the member agreement while you are here. No payment details are needed, and your ${period} ${plural ? "do" : "does"} not start until the day you first come in to work, so nothing is ticking away while we find a time.`;
+/** Six months from the send date. Update alongside CLAIM_DEADLINE before a much later send. */
+export const PASS_EXPIRY = "April 7, 2027";
+const passWindow = `Coworking days run Monday to Friday, 9 a.m. to 6 p.m., and are good until ${PASS_EXPIRY}. Book each day in advance.`;
 export const REDEMPTIONS: Record<string, Redemption> = {
   "full-3": {
     route: "approval",
-    claim: tourClaim("three months"),
+    claim: tourClaim("three months", true),
     link: TOUR,
   },
   "full-1": {
@@ -33,9 +34,9 @@ export const REDEMPTIONS: Record<string, Redemption> = {
     link: TOUR,
   },
   address: {
-    route: "documents",
+    route: "booking",
     claim:
-      "Reply to this email with your business name and registration details along with a piece of photo identification. Once those are confirmed, we will set up your Niagara-on-the-Lake mailing address for six months.",
+      "Reply to this email and we will set up a time to sit down and talk through your business and what you need the address for. We will go over the identification and business documents required when we meet.",
   },
   passport: {
     route: "partner",
@@ -55,9 +56,9 @@ export const REDEMPTIONS: Record<string, Redemption> = {
     note: "Subject to Zannes Law Firm's conflict check and engagement terms. No lawyer-client relationship exists unless the firm confirms it in writing.",
   },
   audit: {
-    route: "partner",
+    route: "booking",
     claim:
-      "Reply to this email and we will introduce you to Story Mode, who will book your marketing audit and send over what they need from you.",
+      "Reply to this email and we will set up a time, either at Haven or on a call, whichever suits you better. Story Mode is my own studio, so you will be working with me directly on this one.",
   },
   office: {
     route: "booking",
@@ -67,7 +68,7 @@ export const REDEMPTIONS: Record<string, Redemption> = {
   bundle: {
     route: "booking",
     claim:
-      "Your bundle is one ticket to a Haven event, worth up to $20 and good for the next 12 months, plus one coworking day. Reply with the day you would like to come in.",
+      "Your bundle is one coworking day plus free entry to our next Haven event. I will send you the invitation as soon as the next date is set. Reply with the day you would like to come in and I will get you booked.",
     note: passWindow,
   },
   pack: {

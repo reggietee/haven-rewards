@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { PRIZES } from "../src/config";
 import {
   CLAIM_DEADLINE,
+  PASS_EXPIRY,
   REDEMPTIONS,
   REPLY_TO,
   firstName,
@@ -83,12 +84,20 @@ describe("winner email template", () => {
     expect(firstName("  Riley  Chen ")).toBe("Riley");
   });
   it("adds the booking window only to pass-based prizes", () => {
-    expect(renderWinnerEmail({ ...base, prizeId: "pack" }).text).toContain(
-      "December 17",
-    );
-    expect(
-      renderWinnerEmail({ ...base, prizeId: "full-3" }).text,
-    ).not.toContain("December 17");
+    for (const id of ["pack", "bundle", "day"]) {
+      const text = renderWinnerEmail({ ...base, prizeId: id }).text;
+      expect(text).toContain("Monday to Friday");
+      expect(text).toContain(PASS_EXPIRY);
+    }
+    for (const id of ["full-3", "address", "audit", "legal-call"])
+      expect(renderWinnerEmail({ ...base, prizeId: id }).text).not.toContain(
+        PASS_EXPIRY,
+      );
+  });
+  it("keeps Story Mode in-house rather than offering an introduction", () => {
+    const text = renderWinnerEmail({ ...base, prizeId: "audit" }).text;
+    expect(text).toContain("Story Mode is my own studio");
+    expect(text).not.toContain("introduce you");
   });
 });
 const joined = `﻿"Name","Email","Prize Won","Prize Tier","Prize Code"
