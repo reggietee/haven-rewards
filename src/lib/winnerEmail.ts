@@ -13,17 +13,17 @@ export const REDEMPTIONS: Record<string, Redemption> = {
   "full-3": {
     route: "approval",
     claim:
-      "Reply to this email and we will book a short intro and tour at Haven. Once you are set up, your three months are applied at no charge.",
+      "Reply with a couple of times that suit you over the next week or two and I will book you a short tour of the space. We will go through the member agreement while you are here. No payment details are needed, and your three months do not start until the day you first come in to work, so nothing is ticking away while we find a time.",
   },
   "full-1": {
     route: "approval",
     claim:
-      "Reply to this email and we will book a short intro and tour at Haven. Once you are set up, your month is applied at no charge.",
+      "Reply with a couple of times that suit you over the next week or two and I will book you a short tour of the space. We will go through the member agreement while you are here. No payment details are needed, and your free month does not start until the day you first come in to work, so nothing is ticking away while we find a time.",
   },
   "part-1": {
     route: "approval",
     claim:
-      "Reply to this email and we will book a short intro and tour at Haven. Once you are set up, your part-time month is applied at no charge.",
+      "Reply with a couple of times that suit you over the next week or two and I will book you a short tour of the space. We will go through the member agreement while you are here. No payment details are needed, and your free part-time month does not start until the day you first come in to work, so nothing is ticking away while we find a time.",
   },
   address: {
     route: "documents",
@@ -87,6 +87,10 @@ export interface Rendered {
   html: string;
 }
 export const REPLY_TO = "reggie@havenworkspace.ca";
+/** Thirty days from the notice date, per the published rules. Update before a much later send. */
+export const CLAIM_DEADLINE = "November 6, 2026";
+const LOGO = "https://spin.havenworkspace.ca/brand/haven-logo-2-dk.png";
+const DEADLINE_LINE = `Please let me know by ${CLAIM_DEADLINE} so I can keep your prize held for you.`;
 const SIGNATURE =
   "Reggie\nHaven Workspace\n242 Mary St, Unit 8, Niagara-on-the-Lake, ON";
 const FOOTER =
@@ -125,31 +129,54 @@ export function renderWinnerEmail(r: Recipient): Rendered {
     redemption.claim,
     ...(redemption.note ? ["", redemption.note] : []),
     "",
+    DEADLINE_LINE,
+    "",
     `If anything is unclear, reply to this email or write to ${REPLY_TO} and I will sort it out with you.`,
     "",
     SIGNATURE,
     "",
     FOOTER,
   ];
-  const html = `<!doctype html><html><body style="margin:0;background:#f4f4f2;padding:24px 12px;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#141414">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:14px;padding:32px">
-<tr><td>
-<p style="margin:0 0 20px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#6b6b6b">Haven Workspace · Demo Day</p>
-<p style="margin:0 0 16px;font-size:16px;line-height:1.6">Hi ${escape(name)},</p>
-<p style="margin:0 0 20px;font-size:16px;line-height:1.6">It was great meeting you at Demo Day at the Niagara Falls Innovation Hub. Thanks for spinning the wheel, and congratulations, you won:</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f7f7f5;border-radius:10px;padding:20px;margin:0 0 24px"><tr><td>
-<p style="margin:0 0 6px;font-size:19px;font-weight:700;line-height:1.35">${escape(prize.displayName)}</p>
-<p style="margin:0 0 10px;font-size:14px;color:#5a5a5a">Valued at ${escape(currency(prize.value))}</p>
-<p style="margin:0;font-size:13px;color:#5a5a5a">Your reference code: <strong style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#141414">${escape(r.code)}</strong></p>
+  const ink = "#201e2c",
+    cream = "#f5f1e8",
+    paper = "#efece4",
+    card = "#fffdf8",
+    gold = "#edc66e",
+    muted = "#7d7686";
+  const body = (text: string, extra = "") =>
+    `<p style="margin:0 0 20px;font-size:16px;line-height:1.65;color:${ink};${extra}">${text}</p>`;
+  const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"></head>
+<body style="margin:0;padding:0;background:${paper};-webkit-font-smoothing:antialiased;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0">Your prize from Demo Day, and how to claim it.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${paper}"><tr><td align="center" style="padding:32px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:580px;width:100%">
+<tr><td align="center" style="background:${ink};padding:32px 24px 26px;border-radius:16px 16px 0 0">
+<img src="${LOGO}" width="52" height="52" alt="Haven Workspace" style="display:block;border:0;width:52px;height:52px;margin:0 auto 12px">
+<div style="font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:${cream};font-weight:600">Haven Workspace</div>
+</td></tr>
+<tr><td style="background:${card};padding:36px 32px 8px">
+<p style="margin:0 0 22px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:${muted}">Demo Day · Niagara Falls Innovation Hub</p>
+${body(`Hi ${escape(name)},`)}
+${body("It was great meeting you at Demo Day at the Niagara Falls Innovation Hub. Thanks for spinning the wheel, and congratulations, you won:")}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px"><tr>
+<td style="background:${cream};border-left:3px solid ${gold};border-radius:0 10px 10px 0;padding:22px 24px">
+<div style="font-size:20px;font-weight:700;line-height:1.3;color:${ink}">${escape(prize.displayName)}</div>
+<div style="margin-top:7px;font-size:14px;color:${muted}">Valued at ${escape(currency(prize.value))}</div>
+<div style="margin-top:14px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:${muted}">Reference code</div>
+<div style="margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:15px;color:${ink}">${escape(r.code)}</div>
 </td></tr></table>
-<p style="margin:0 0 8px;font-size:16px;font-weight:700">How to claim it</p>
-<p style="margin:0 0 ${redemption.note ? "12" : "24"}px;font-size:16px;line-height:1.6">${escape(redemption.claim)}</p>
-${redemption.note ? `<p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#5a5a5a">${escape(redemption.note)}</p>` : ""}
-<p style="margin:0 0 24px;font-size:16px;line-height:1.6">If anything is unclear, reply to this email or write to <a href="mailto:${REPLY_TO}" style="color:#141414">${REPLY_TO}</a> and I will sort it out with you.</p>
-<p style="margin:0 0 4px;font-size:16px;line-height:1.6">Reggie<br>Haven Workspace</p>
-<p style="margin:0 0 24px;font-size:14px;color:#5a5a5a">242 Mary St, Unit 8, Niagara-on-the-Lake, ON</p>
-<p style="margin:0;padding-top:20px;border-top:1px solid #e6e6e2;font-size:12px;line-height:1.6;color:#8a8a8a">${escape(FOOTER)}</p>
-</td></tr></table></td></tr></table></body></html>`;
+<p style="margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:${muted};font-weight:600">How to claim it</p>
+${body(escape(redemption.claim))}
+${redemption.note ? `<p style="margin:0 0 20px;font-size:14px;line-height:1.65;color:${muted}">${escape(redemption.note)}</p>` : ""}
+${body(escape(DEADLINE_LINE))}
+${body(`If anything is unclear, reply to this email or write to <a href="mailto:${REPLY_TO}" style="color:${ink};text-decoration:underline">${REPLY_TO}</a> and I will sort it out with you.`)}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:8px 0 0;border-top:1px solid #e7e1d6"></td></tr></table>
+<p style="margin:20px 0 4px;font-size:16px;line-height:1.6;color:${ink}">Reggie</p>
+<p style="margin:0 0 28px;font-size:14px;line-height:1.6;color:${muted}">Haven Workspace<br>242 Mary St, Unit 8, Niagara-on-the-Lake, ON</p>
+</td></tr>
+<tr><td style="background:${card};padding:0 32px 30px;border-radius:0 0 16px 16px">
+<p style="margin:0;font-size:12px;line-height:1.65;color:#9b94a3">${escape(FOOTER)}</p>
+</td></tr>
+</table></td></tr></table></body></html>`;
   return { subject, text: lines.join("\n"), html };
 }

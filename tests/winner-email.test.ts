@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { PRIZES } from "../src/config";
 import {
+  CLAIM_DEADLINE,
   REDEMPTIONS,
   REPLY_TO,
   firstName,
@@ -27,6 +28,28 @@ describe("winner email template", () => {
       }
       expect(mail.text).toContain("Hi Dana,");
       expect(mail.text).toContain(REDEMPTIONS[prize.id].claim);
+    }
+  });
+  it("states the claim deadline on every prize, in both formats", () => {
+    for (const prize of PRIZES) {
+      const mail = renderWinnerEmail({ ...base, prizeId: prize.id });
+      expect(mail.text).toContain(CLAIM_DEADLINE);
+      expect(mail.html).toContain(CLAIM_DEADLINE);
+    }
+  });
+  it("shows the logo over https with alt text, and keeps the text copy image-free", () => {
+    const mail = renderWinnerEmail({ ...base, prizeId: "bundle" });
+    expect(mail.html).toContain(
+      'src="https://spin.havenworkspace.ca/brand/haven-logo-2-dk.png"',
+    );
+    expect(mail.html).toContain('alt="Haven Workspace"');
+    expect(mail.text).not.toContain("http");
+  });
+  it("tells membership winners no payment details are needed", () => {
+    for (const id of ["full-3", "full-1", "part-1"]) {
+      const mail = renderWinnerEmail({ ...base, prizeId: id });
+      expect(mail.text).toContain("No payment details are needed");
+      expect(mail.text).toContain("member agreement");
     }
   });
   it("rejects a prize that is not in the catalogue", () => {
