@@ -45,6 +45,23 @@ describe("winner email template", () => {
     expect(mail.html).toContain('alt="Haven Workspace"');
     expect(mail.text).not.toContain("http");
   });
+  it("sends membership winners to the tour calendar in both formats", () => {
+    const url = "https://cal.com/havenworkspace/tour";
+    for (const id of ["full-3", "full-1", "part-1"]) {
+      const mail = renderWinnerEmail({ ...base, prizeId: id });
+      expect(mail.text).toContain(`Book your tour: ${url}`);
+      expect(mail.html).toContain(`href="${url}"`);
+      expect(mail.text).not.toContain("couple of times");
+    }
+  });
+  it("leaves every other prize without a booking link", () => {
+    for (const prize of PRIZES) {
+      if (REDEMPTIONS[prize.id].link) continue;
+      expect(
+        renderWinnerEmail({ ...base, prizeId: prize.id }).text,
+      ).not.toContain("http");
+    }
+  });
   it("tells membership winners no payment details are needed", () => {
     for (const id of ["full-3", "full-1", "part-1"]) {
       const mail = renderWinnerEmail({ ...base, prizeId: id });

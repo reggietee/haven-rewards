@@ -6,24 +6,31 @@ interface Redemption {
   route: Route;
   claim: string;
   note?: string;
+  link?: { label: string; url: string };
 }
+const TOUR = {
+  label: "Book your tour",
+  url: "https://cal.com/havenworkspace/tour",
+};
+const tourClaim = (period: string) =>
+  `Pick any time that suits you on our tour calendar and come see the space. We will go through the member agreement while you are here. No payment details are needed, and your ${period} does not start until the day you first come in to work, so nothing is ticking away while we find a time.`;
 const passWindow =
   "Coworking days run Tuesdays and Thursdays, 9 a.m.–6 p.m., between October 1 and December 17, 2026. Book each day in advance; unused days expire December 17.";
 export const REDEMPTIONS: Record<string, Redemption> = {
   "full-3": {
     route: "approval",
-    claim:
-      "Reply with a couple of times that suit you over the next week or two and I will book you a short tour of the space. We will go through the member agreement while you are here. No payment details are needed, and your three months do not start until the day you first come in to work, so nothing is ticking away while we find a time.",
+    claim: tourClaim("three months"),
+    link: TOUR,
   },
   "full-1": {
     route: "approval",
-    claim:
-      "Reply with a couple of times that suit you over the next week or two and I will book you a short tour of the space. We will go through the member agreement while you are here. No payment details are needed, and your free month does not start until the day you first come in to work, so nothing is ticking away while we find a time.",
+    claim: tourClaim("free month"),
+    link: TOUR,
   },
   "part-1": {
     route: "approval",
-    claim:
-      "Reply with a couple of times that suit you over the next week or two and I will book you a short tour of the space. We will go through the member agreement while you are here. No payment details are needed, and your free part-time month does not start until the day you first come in to work, so nothing is ticking away while we find a time.",
+    claim: tourClaim("free part-time month"),
+    link: TOUR,
   },
   address: {
     route: "documents",
@@ -90,7 +97,8 @@ export const REPLY_TO = "reggie@havenworkspace.ca";
 /** Thirty days from the notice date, per the published rules. Update before a much later send. */
 export const CLAIM_DEADLINE = "November 6, 2026";
 const LOGO = "https://spin.havenworkspace.ca/brand/haven-logo-2-dk.png";
-const DEADLINE_LINE = `Please let me know by ${CLAIM_DEADLINE} so I can keep your prize held for you.`;
+const deadlineLine = (booked: boolean) =>
+  `Please ${booked ? "book" : "let me know"} by ${CLAIM_DEADLINE} so I can keep your prize held for you.`;
 const SIGNATURE =
   "Reggie\nHaven Workspace\n242 Mary St, Unit 8, Niagara-on-the-Lake, ON";
 const FOOTER =
@@ -116,6 +124,7 @@ export function renderWinnerEmail(r: Recipient): Rendered {
   const redemption = REDEMPTIONS[r.prizeId];
   if (!prize || !redemption) throw new Error("Unknown prize.");
   const name = firstName(r.name);
+  const deadline = deadlineLine(!!redemption.link);
   const subject = `You won the ${prize.displayName} at Haven Demo Day`;
   const lines = [
     `Hi ${name},`,
@@ -127,9 +136,12 @@ export function renderWinnerEmail(r: Recipient): Rendered {
     "",
     "How to claim it",
     redemption.claim,
+    ...(redemption.link
+      ? ["", `${redemption.link.label}: ${redemption.link.url}`]
+      : []),
     ...(redemption.note ? ["", redemption.note] : []),
     "",
-    DEADLINE_LINE,
+    deadline,
     "",
     `If anything is unclear, reply to this email or write to ${REPLY_TO} and I will sort it out with you.`,
     "",
@@ -167,8 +179,16 @@ ${body("It was great meeting you at Demo Day at the Niagara Falls Innovation Hub
 </td></tr></table>
 <p style="margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:${muted};font-weight:600">How to claim it</p>
 ${body(escape(redemption.claim))}
+${
+  redemption.link
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px"><tr>
+<td style="background:${gold};border-radius:8px"><a href="${redemption.link.url}" style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:700;color:${ink};text-decoration:none">${redemption.link.label} &rarr;</a></td>
+</tr></table>
+<p style="margin:-10px 0 22px;font-size:13px;line-height:1.6;color:${muted}">Or paste this into your browser: <a href="${redemption.link.url}" style="color:${muted}">${redemption.link.url}</a></p>`
+    : ""
+}
 ${redemption.note ? `<p style="margin:0 0 20px;font-size:14px;line-height:1.65;color:${muted}">${escape(redemption.note)}</p>` : ""}
-${body(escape(DEADLINE_LINE))}
+${body(escape(deadline))}
 ${body(`If anything is unclear, reply to this email or write to <a href="mailto:${REPLY_TO}" style="color:${ink};text-decoration:underline">${REPLY_TO}</a> and I will sort it out with you.`)}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:8px 0 0;border-top:1px solid #e7e1d6"></td></tr></table>
 <p style="margin:20px 0 4px;font-size:16px;line-height:1.6;color:${ink}">Reggie</p>
