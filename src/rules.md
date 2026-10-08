@@ -101,11 +101,13 @@ Zannes Law Firm prizes are subject to the firm's conflict check, service availab
 
 ### 10. Booking coworking passes
 
+**Amended October 7, 2026.** The booking window below was widened in winners' favour: passes were previously bookable on Tuesdays and Thursdays until December 17, 2026, and now run Monday to Friday until April 7, 2027. No other term changed, and no winner is worse off than under the version published on September 22, 2026.
+
 Each confirmed 1-Day Coworking Pass and 5-Day Pass Pack will receive a unique code linked to the winner's name and email address.
 
-Passes may be booked only for available Tuesdays and Thursdays, from 9:00 a.m. to 6:00 p.m., between October 1 and December 17, 2026. The initial capacity is four prize bookings per day, but the Sponsor may add or remove available dates or adjust daily capacity based on workspace operations. Availability is first come, first served.
+Passes may be booked only for available weekdays, Monday to Friday, from 9:00 a.m. to 6:00 p.m., up to and including April 7, 2027. The initial capacity is four prize bookings per day, but the Sponsor may add or remove available dates or adjust daily capacity based on workspace operations. Availability is first come, first served.
 
-Each day in a 5-Day Pass Pack must be booked separately. A winner may cancel or change a booking before the booked day, subject to availability. All unused pass days expire after December 17, 2026.
+Each day in a 5-Day Pass Pack must be booked separately. A winner may cancel or change a booking before the booked day, subject to availability. All unused pass days expire after April 7, 2027.
 
 The name on a booking must match the name on the contest entry. Identification may be required at check-in. Codes and bookings cannot be transferred.
 

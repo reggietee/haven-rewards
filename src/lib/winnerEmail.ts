@@ -7,6 +7,8 @@ interface Redemption {
   claim: string;
   note?: string;
   link?: { label: string; url: string };
+  /** The prize states its own expiry, so the 30-day claim deadline is left off. */
+  ownExpiry?: boolean;
 }
 const TOUR = {
   label: "Book your tour",
@@ -70,17 +72,20 @@ export const REDEMPTIONS: Record<string, Redemption> = {
     claim:
       "Your bundle is one coworking day plus free entry to our next Haven event. I will send you the invitation as soon as the next date is set. Reply with the day you would like to come in and I will get you booked.",
     note: passWindow,
+    ownExpiry: true,
   },
   pack: {
     route: "booking",
     claim:
       "Reply with the days you would like to book. Your five days can be used separately.",
     note: passWindow,
+    ownExpiry: true,
   },
   day: {
     route: "booking",
     claim: "Reply with the day you would like to come in.",
     note: passWindow,
+    ownExpiry: true,
   },
 };
 export interface Recipient {
@@ -125,7 +130,7 @@ export function renderWinnerEmail(r: Recipient): Rendered {
   const redemption = REDEMPTIONS[r.prizeId];
   if (!prize || !redemption) throw new Error("Unknown prize.");
   const name = firstName(r.name);
-  const deadline = deadlineLine(!!redemption.link);
+  const deadline = redemption.ownExpiry ? "" : deadlineLine(!!redemption.link);
   const subject = `You won the ${prize.displayName} at Haven Demo Day`;
   const lines = [
     `Hi ${name},`,
@@ -141,8 +146,7 @@ export function renderWinnerEmail(r: Recipient): Rendered {
       ? ["", `${redemption.link.label}: ${redemption.link.url}`]
       : []),
     ...(redemption.note ? ["", redemption.note] : []),
-    "",
-    deadline,
+    ...(deadline ? ["", deadline] : []),
     "",
     `If anything is unclear, reply to this email or write to ${REPLY_TO} and I will sort it out with you.`,
     "",
@@ -189,7 +193,7 @@ ${
     : ""
 }
 ${redemption.note ? `<p style="margin:0 0 20px;font-size:14px;line-height:1.65;color:${muted}">${escape(redemption.note)}</p>` : ""}
-${body(escape(deadline))}
+${deadline ? body(escape(deadline)) : ""}
 ${body(`If anything is unclear, reply to this email or write to <a href="mailto:${REPLY_TO}" style="color:${ink};text-decoration:underline">${REPLY_TO}</a> and I will sort it out with you.`)}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:8px 0 0;border-top:1px solid #e7e1d6"></td></tr></table>
 <p style="margin:20px 0 4px;font-size:16px;line-height:1.6;color:${ink}">Reggie</p>
