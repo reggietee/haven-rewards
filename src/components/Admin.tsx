@@ -27,8 +27,20 @@ interface Props {
   onPreview: (p: Prize) => void;
   onTest: () => void;
   cached: boolean;
+  updateReady: boolean;
+  onUpdate: () => void;
+  onCheckUpdate: () => Promise<boolean>;
 }
-export default function Admin({ onClose, onPreview, onTest, cached }: Props) {
+export default function Admin({
+  onClose,
+  onPreview,
+  onTest,
+  cached,
+  updateReady,
+  onUpdate,
+  onCheckUpdate,
+}: Props) {
+  const [checked, setChecked] = useState("");
   const device = useLiveQuery(() => db.device.get("device"));
   const schedules = useLiveQuery(() => db.schedules.toArray());
   const units = useLiveQuery(() => db.units.toArray()) ?? [];
@@ -158,6 +170,12 @@ export default function Admin({ onClose, onPreview, onTest, cached }: Props) {
                 <dd>{device ? "Ready" : "Unavailable"}</dd>
               </div>
               <div>
+                <dt>App version</dt>
+                <dd>
+                  {updateReady ? "Update ready to install" : "Up to date"}
+                </dd>
+              </div>
+              <div>
                 <dt>Event</dt>
                 <dd>
                   {device?.retired
@@ -209,17 +227,48 @@ export default function Admin({ onClose, onPreview, onTest, cached }: Props) {
                 <dd className="mono">{device?.deviceId}</dd>
               </div>
             </dl>
-            <button
-              disabled={busy}
-              onClick={() =>
-                void run(async () => {
-                  await syncNow(true);
-                  setReady(await getReadiness());
-                })
-              }
-            >
-              Retry synchronization
-            </button>
+            <div className="button-row">
+              <button
+                disabled={busy}
+                onClick={() =>
+                  void run(async () => {
+                    await syncNow(true);
+                    setReady(await getReadiness());
+                  })
+                }
+              >
+                Retry synchronization
+              </button>
+              <button
+                disabled={busy}
+                onClick={() =>
+                  void run(async () => {
+                    setChecked("");
+                    const waiting = await onCheckUpdate();
+                    setChecked(
+                      waiting
+                        ? "A new version is ready to install."
+                        : "No new version is available yet.",
+                    );
+                  })
+                }
+              >
+                Check for app update
+              </button>
+              {updateReady && (
+                <button className="primary" onClick={onUpdate}>
+                  Install update and reload
+                </button>
+              )}
+            </div>
+            {checked && <p className="muted">{checked}</p>}
+            {updateReady && (
+              <p className="operator-warning">
+                A new version of this app has downloaded and is waiting. It will
+                not install on its own. Install it between guests, never during
+                a spin.
+              </p>
+            )}
           </section>
           <section>
             <h2>Real event</h2>

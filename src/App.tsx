@@ -50,11 +50,16 @@ export default function App() {
     [busy, setBusy] = useState(false),
     [muted, setMute] = useState(isMuted()),
     [cached, setCached] = useState(false),
+    [updateReady, setUpdateReady] = useState(false),
     [qr, setQr] = useState(""),
     [now, setNow] = useState(Date.now()),
     [dbReady, setDbReady] = useState(false),
     [online, setOnline] = useState(navigator.onLine);
   const voice = useRef<WinnerVoice | null>(null);
+  const updateSW = useRef<((reload?: boolean) => Promise<void>) | null>(null);
+  const swRegistration = useRef<ServiceWorkerRegistration | undefined>(
+    undefined,
+  );
   useEffect(() => {
     const controller = new WinnerVoice();
     voice.current = controller;
@@ -146,9 +151,17 @@ export default function App() {
       margin: 1,
       color: { dark: "#161523", light: "#f5f1e8" },
     }).then(setQr);
-    registerSW({
+    // registerType is "prompt": a waiting worker never activates on its own, so the
+    // operator is offered the update rather than a kiosk swapping versions mid-spin.
+    updateSW.current = registerSW({
       onOfflineReady() {
         setCached(true);
+      },
+      onNeedRefresh() {
+        setUpdateReady(true);
+      },
+      onRegisteredSW(_url, registration) {
+        swRegistration.current = registration;
       },
     });
     if ("serviceWorker" in navigator) {
@@ -712,6 +725,12 @@ export default function App() {
               )
             }
             cached={cached}
+            updateReady={updateReady}
+            onUpdate={() => updateSW.current?.(true)}
+            onCheckUpdate={async () => {
+              await swRegistration.current?.update();
+              return !!swRegistration.current?.waiting;
+            }}
           />
         </Suspense>
       )}
