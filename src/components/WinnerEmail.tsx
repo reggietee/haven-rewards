@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../lib/db";
-import { buildRecipients } from "../lib/winnerList";
+import { buildRecipients, testRecipient } from "../lib/winnerList";
 import { findPrize, REDEMPTIONS, type Recipient } from "../lib/winnerEmail";
 import { csv } from "../lib/csv";
 import { currency } from "../config";
 interface Props {
   configured: boolean;
 }
-type Preview = { subject: string; text: string } | null;
+type Preview = { subject: string; text: string; recipient: Recipient } | null;
 async function call(body: Record<string, unknown>) {
   const device = await db.device.get("device");
   if (!device?.auth) throw new Error("Unlock this device first.");
@@ -70,11 +70,11 @@ export default function WinnerEmail({ configured }: Props) {
   const showPreview = (r: Recipient) =>
     run(async () => {
       const data = await call({ ...r, preview: true });
-      setPreview({ subject: data.subject, text: data.text });
+      setPreview({ subject: data.subject, text: data.text, recipient: r });
     });
+  const sample = testRecipient(preview?.recipient, selected, recipients);
   const sendTest = () =>
     run(async () => {
-      const sample = selected[0] ?? recipients[0];
       if (!sample) throw new Error("Load a winner list first.");
       await call({ ...sample, email: test.trim(), name: "Reggie" });
       setStatus(
@@ -251,6 +251,10 @@ export default function WinnerEmail({ configured }: Props) {
           </div>
           {preview && (
             <div className="operator-warning">
+              <p className="muted">
+                Previewing the email for {preview.recipient.name} —{" "}
+                {findPrize(preview.recipient.prizeId)?.displayName}
+              </p>
               <p>
                 <strong>Subject:</strong> {preview.subject}
               </p>
@@ -272,9 +276,12 @@ export default function WinnerEmail({ configured }: Props) {
           <div className="button-row">
             <button
               onClick={() => void sendTest()}
-              disabled={busy || !configured || !test.includes("@")}
+              disabled={busy || !configured || !test.includes("@") || !sample}
             >
               Send test copy
+              {sample
+                ? ` of the ${findPrize(sample.prizeId)?.displayName}`
+                : ""}
             </button>
             <button
               className="primary"

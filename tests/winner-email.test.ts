@@ -7,8 +7,13 @@ import {
   REPLY_TO,
   firstName,
   renderWinnerEmail,
+  type Recipient,
 } from "../src/lib/winnerEmail";
-import { buildRecipients, parseCsv } from "../src/lib/winnerList";
+import {
+  buildRecipients,
+  parseCsv,
+  testRecipient,
+} from "../src/lib/winnerList";
 const base = {
   name: "Dana Okafor",
   email: "dana@example.com",
@@ -144,6 +149,34 @@ const entriesCsv = `"id","email","first","last"
 const spinsCsv = `"id","entryId","prizeId","code"
 "s1","e1","bundle","HAVEN-AAA-01"
 "s2","e2","pack","HAVEN-BBB-02"`;
+describe("test copy recipient", () => {
+  const a: Recipient = {
+    name: "A",
+    email: "a@e.com",
+    prizeId: "bundle",
+    code: "HAVEN-A-1",
+  };
+  const b: Recipient = {
+    name: "B",
+    email: "b@e.com",
+    prizeId: "pack",
+    code: "HAVEN-B-2",
+  };
+  const c: Recipient = {
+    name: "C",
+    email: "c@e.com",
+    prizeId: "full-1",
+    code: "HAVEN-C-3",
+  };
+  it("follows the previewed row ahead of the selection and the list", () => {
+    expect(testRecipient(c, [b], [a, b, c])).toBe(c);
+  });
+  it("falls back to the first selected row, then the first loaded row", () => {
+    expect(testRecipient(undefined, [b], [a, b, c])).toBe(b);
+    expect(testRecipient(undefined, [], [a, b, c])).toBe(a);
+    expect(testRecipient(undefined, [], [])).toBeUndefined();
+  });
+});
 describe("winner list", () => {
   it("parses quoted csv with a byte order mark", () => {
     const rows = parseCsv(joined);

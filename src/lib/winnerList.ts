@@ -64,6 +64,12 @@ const prizeIdFor = (row: Record<string, string>) => {
   );
 };
 const validEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+/** A test copy follows the row on screen first, so it always matches the visible preview. */
+export const testRecipient = (
+  previewed: Recipient | undefined,
+  selected: Recipient[],
+  all: Recipient[],
+): Recipient | undefined => previewed ?? selected[0] ?? all[0];
 export interface ListResult {
   recipients: Recipient[];
   issues: string[];
