@@ -79,6 +79,25 @@ it("sends one approved message and returns the provider id", async () => {
   expect(sent.subject).toContain("Haven Event + Coworking Day Bundle");
   expect(sent.text).toContain("HAVEN-AAA-01");
 });
+it("copies the law firm on Zannes prizes only", async () => {
+  for (const prizeId of ["legal-card", "legal-call"]) {
+    provider.mockClear();
+    await call(input({ prizeId }));
+    expect(JSON.parse(provider.mock.calls[0][1].body).cc).toEqual([
+      "hello@zanneslaw.com",
+    ]);
+  }
+  for (const prizeId of ["bundle", "pack", "full-1", "audit", "address"]) {
+    provider.mockClear();
+    await call(input({ prizeId }));
+    expect(JSON.parse(provider.mock.calls[0][1].body).cc).toBeUndefined();
+  }
+});
+it("ignores a cc supplied by the caller", async () => {
+  const { status } = await call(input({ cc: ["attacker@example.com"] }));
+  expect(status).toBe(400);
+  expect(provider).not.toHaveBeenCalled();
+});
 it("previews without contacting the provider", async () => {
   const { status, data } = await call(input({ preview: true }));
   expect(status).toBe(200);

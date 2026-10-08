@@ -219,7 +219,17 @@ export default function WinnerEmail({ configured }: Props) {
                           {currency(prize?.value ?? 0)}
                         </span>
                       </td>
-                      <td>{REDEMPTIONS[r.prizeId]?.route}</td>
+                      <td>
+                        {REDEMPTIONS[r.prizeId]?.route}
+                        {REDEMPTIONS[r.prizeId]?.cc && (
+                          <>
+                            <br />
+                            <span className="muted">
+                              cc {REDEMPTIONS[r.prizeId].cc}
+                            </span>
+                          </>
+                        )}
+                      </td>
                       <td>
                         {previous
                           ? `${previous.status} ${previous.sentAt.slice(0, 10)}`

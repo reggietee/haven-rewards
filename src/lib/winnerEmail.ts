@@ -9,6 +9,10 @@ interface Redemption {
   link?: { label: string; url: string };
   /** The prize states its own expiry, so the 30-day claim deadline is left off. */
   ownExpiry?: boolean;
+  /** Replaces the default dated deadline sentence. */
+  deadline?: string;
+  /** Fulfilment partner copied on this prize only. Server-side, never client-supplied. */
+  cc?: string;
 }
 const TOUR = {
   label: "Book your tour",
@@ -16,8 +20,8 @@ const TOUR = {
 };
 const tourClaim = (period: string, plural = false) =>
   `Pick any time that suits you on our tour calendar and come see the space. We will go through the member agreement while you are here. No payment details are needed, and your ${period} ${plural ? "do" : "does"} not start until the day you first come in to work, so nothing is ticking away while we find a time.`;
-/** Six months from the send date. Update alongside CLAIM_DEADLINE before a much later send. */
-export const PASS_EXPIRY = "April 7, 2027";
+/** Three months from the send date. Update alongside CLAIM_DEADLINE before a much later send. */
+export const PASS_EXPIRY = "January 8, 2027";
 const passWindow = `Coworking days run Monday to Friday, 9 a.m. to 6 p.m., and are good until ${PASS_EXPIRY}. Book each day in advance.`;
 export const REDEMPTIONS: Record<string, Redemption> = {
   "full-3": {
@@ -48,19 +52,25 @@ export const REDEMPTIONS: Record<string, Redemption> = {
   "legal-card": {
     route: "partner",
     claim:
-      "Reply to this email and we will introduce you to Zannes Law Firm. They run a short conflict check first, then apply your gift card toward business legal services.",
+      "Zannes Law Firm is copied on this email. They run a short conflict check first, then apply your gift card toward business legal services. If you do not need the service within the next 90 days, the prize is transferable to someone else by request.",
     note: "Subject to Zannes Law Firm's conflict check and engagement terms. No lawyer-client relationship exists unless the firm confirms it in writing.",
+    deadline:
+      "Please let us know within 30 days so we can keep your prize held for you.",
+    cc: "hello@zanneslaw.com",
   },
   "legal-call": {
     route: "partner",
     claim:
-      "Reply to this email and we will introduce you to Zannes Law Firm. They run a short conflict check first, then you can book your 45 minutes directly with them.",
+      "Zannes Law Firm is copied on this email. They run a short conflict check first, then you can book your 45 minutes directly with them. If you do not need the service within the next 90 days, the prize is transferable to someone else by request.",
     note: "Subject to Zannes Law Firm's conflict check and engagement terms. No lawyer-client relationship exists unless the firm confirms it in writing.",
+    deadline:
+      "Please let us know within 30 days so we can keep your prize held for you.",
+    cc: "hello@zanneslaw.com",
   },
   audit: {
     route: "booking",
     claim:
-      "Reply to this email and we will set up a time, either at Haven or on a call, whichever suits you better. Story Mode is my own studio, so you will be working with me directly on this one.",
+      "Reply to this email and we will set up a time, either at Haven or on a call, whichever suits you better. Story Mode is run by Reggie, our founder, so you will be working with him directly on this one.",
   },
   office: {
     route: "booking",
@@ -70,14 +80,14 @@ export const REDEMPTIONS: Record<string, Redemption> = {
   bundle: {
     route: "booking",
     claim:
-      "Your bundle is one coworking day plus free entry to our next Haven event. I will send you the invitation as soon as the next date is set. Reply with the day you would like to come in and I will get you booked.",
+      "Your bundle is one coworking day plus free entry to our next Haven event. We will send you the invitation as soon as the next date is set. Reply with the day you would like to come in and we will get you booked.",
     note: passWindow,
     ownExpiry: true,
   },
   pack: {
     route: "booking",
     claim:
-      "Reply with the days you would like to book. Your five days can be used separately.",
+      "Thinking of coming in for a full week, or one day a week for five weeks? Send us the dates that suit you and we will lock in a day pass for each of them. Your five days can be used however you like.",
     note: passWindow,
     ownExpiry: true,
   },
@@ -104,9 +114,9 @@ export const REPLY_TO = "reggie@havenworkspace.ca";
 export const CLAIM_DEADLINE = "November 6, 2026";
 const LOGO = "https://spin.havenworkspace.ca/brand/haven-logo-2-dk.png";
 const deadlineLine = (booked: boolean) =>
-  `Please ${booked ? "book" : "let me know"} by ${CLAIM_DEADLINE} so I can keep your prize held for you.`;
+  `Please ${booked ? "book" : "let us know"} by ${CLAIM_DEADLINE} so we can keep your prize held for you.`;
 const SIGNATURE =
-  "Reggie\nHaven Workspace\n242 Mary St, Unit 8, Niagara-on-the-Lake, ON";
+  "The Haven Team\nHaven Workspace\n242 Mary St, Unit 8, Niagara-on-the-Lake, ON";
 const FOOTER =
   "You are receiving this because you entered the Haven prize wheel at Demo Day on September 22, 2026. This message is about your prize only.";
 export const findPrize = (prizeId: string): Prize | undefined =>
@@ -130,7 +140,9 @@ export function renderWinnerEmail(r: Recipient): Rendered {
   const redemption = REDEMPTIONS[r.prizeId];
   if (!prize || !redemption) throw new Error("Unknown prize.");
   const name = firstName(r.name);
-  const deadline = redemption.ownExpiry ? "" : deadlineLine(!!redemption.link);
+  const deadline = redemption.ownExpiry
+    ? ""
+    : (redemption.deadline ?? deadlineLine(!!redemption.link));
   const subject = `You won the ${prize.displayName} at Haven Demo Day`;
   const lines = [
     `Hi ${name},`,
@@ -148,7 +160,7 @@ export function renderWinnerEmail(r: Recipient): Rendered {
     ...(redemption.note ? ["", redemption.note] : []),
     ...(deadline ? ["", deadline] : []),
     "",
-    `If anything is unclear, reply to this email or write to ${REPLY_TO} and I will sort it out with you.`,
+    `If anything is unclear, reply to this email or write to ${REPLY_TO} and Reggie will sort it out with you.`,
     "",
     SIGNATURE,
     "",
@@ -194,9 +206,9 @@ ${
 }
 ${redemption.note ? `<p style="margin:0 0 20px;font-size:14px;line-height:1.65;color:${muted}">${escape(redemption.note)}</p>` : ""}
 ${deadline ? body(escape(deadline)) : ""}
-${body(`If anything is unclear, reply to this email or write to <a href="mailto:${REPLY_TO}" style="color:${ink};text-decoration:underline">${REPLY_TO}</a> and I will sort it out with you.`)}
+${body(`If anything is unclear, reply to this email or write to <a href="mailto:${REPLY_TO}" style="color:${ink};text-decoration:underline">${REPLY_TO}</a> and Reggie will sort it out with you.`)}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:8px 0 0;border-top:1px solid #e7e1d6"></td></tr></table>
-<p style="margin:20px 0 4px;font-size:16px;line-height:1.6;color:${ink}">Reggie</p>
+<p style="margin:20px 0 4px;font-size:16px;line-height:1.6;color:${ink}">The Haven Team</p>
 <p style="margin:0 0 28px;font-size:14px;line-height:1.6;color:${muted}">Haven Workspace<br>242 Mary St, Unit 8, Niagara-on-the-Lake, ON</p>
 </td></tr>
 <tr><td style="background:${card};padding:0 32px 30px;border-radius:0 0 16px 16px">

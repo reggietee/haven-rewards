@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { renderWinnerEmail, REPLY_TO } from "../src/lib/winnerEmail.js";
+import {
+  REDEMPTIONS,
+  renderWinnerEmail,
+  REPLY_TO,
+} from "../src/lib/winnerEmail.js";
 export const emailSchema = z
   .object({
     name: z.string().min(1).max(120),
@@ -57,6 +61,8 @@ export async function sendWinnerEmail(
   signal: AbortSignal,
 ) {
   const { subject, text, html } = renderWinnerEmail(input);
+  // The fulfilment partner is looked up from the prize, never taken from the request.
+  const cc = REDEMPTIONS[input.prizeId]?.cc;
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -66,6 +72,7 @@ export async function sendWinnerEmail(
     body: JSON.stringify({
       from: process.env.WINNER_EMAIL_FROM,
       to: [input.email],
+      ...(cc ? { cc: [cc] } : {}),
       reply_to: process.env.WINNER_EMAIL_REPLY_TO || REPLY_TO,
       subject,
       text,

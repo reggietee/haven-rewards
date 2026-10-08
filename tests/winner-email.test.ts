@@ -34,7 +34,8 @@ describe("winner email template", () => {
   it("states the claim deadline on prizes that do not carry their own expiry", () => {
     for (const prize of PRIZES) {
       const mail = renderWinnerEmail({ ...base, prizeId: prize.id });
-      const expected = !REDEMPTIONS[prize.id].ownExpiry;
+      const r = REDEMPTIONS[prize.id];
+      const expected = !r.ownExpiry && !r.deadline;
       expect(mail.text.includes(CLAIM_DEADLINE)).toBe(expected);
       expect(mail.html.includes(CLAIM_DEADLINE)).toBe(expected);
     }
@@ -103,9 +104,34 @@ describe("winner email template", () => {
         PASS_EXPIRY,
       );
   });
+  it("offers the Zannes prizes on a relative clock, transferable, no fixed date", () => {
+    for (const id of ["legal-card", "legal-call"]) {
+      const mail = renderWinnerEmail({ ...base, prizeId: id });
+      expect(mail.text).toContain("within 30 days");
+      expect(mail.text).toContain("transferable to someone else by request");
+      expect(mail.text).toContain("next 90 days");
+      expect(mail.text).not.toContain(CLAIM_DEADLINE);
+    }
+  });
+  it("copies the law firm on the Zannes prizes and nothing else", () => {
+    expect(REDEMPTIONS["legal-card"].cc).toBe("hello@zanneslaw.com");
+    expect(REDEMPTIONS["legal-call"].cc).toBe("hello@zanneslaw.com");
+    for (const prize of PRIZES)
+      if (!prize.id.startsWith("legal-"))
+        expect(REDEMPTIONS[prize.id].cc).toBeUndefined();
+  });
+  it("speaks for Haven, with Reggie as the fallback contact", () => {
+    for (const prize of PRIZES) {
+      const mail = renderWinnerEmail({ ...base, prizeId: prize.id });
+      expect(mail.text).toContain("The Haven Team");
+      expect(mail.text).toContain(`${REPLY_TO} and Reggie will sort it out`);
+      expect(mail.text).not.toMatch(/\bI will\b/);
+      expect(mail.text).not.toMatch(/\bmy own\b/);
+    }
+  });
   it("keeps Story Mode in-house rather than offering an introduction", () => {
     const text = renderWinnerEmail({ ...base, prizeId: "audit" }).text;
-    expect(text).toContain("Story Mode is my own studio");
+    expect(text).toContain("Story Mode is run by Reggie, our founder");
     expect(text).not.toContain("introduce you");
   });
 });
