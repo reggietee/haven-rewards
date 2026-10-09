@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { PRIZES } from "../src/config";
 import {
-  CLAIM_DEADLINE,
+  CLAIM_WINDOW,
   PASS_EXPIRY,
   REDEMPTIONS,
   REPLY_TO,
@@ -39,17 +39,16 @@ describe("winner email template", () => {
   it("states the claim deadline on prizes that do not carry their own expiry", () => {
     for (const prize of PRIZES) {
       const mail = renderWinnerEmail({ ...base, prizeId: prize.id });
-      const r = REDEMPTIONS[prize.id];
-      const expected = !r.ownExpiry && !r.deadline;
-      expect(mail.text.includes(CLAIM_DEADLINE)).toBe(expected);
-      expect(mail.html.includes(CLAIM_DEADLINE)).toBe(expected);
+      const expected = !REDEMPTIONS[prize.id].ownExpiry;
+      expect(mail.text.includes(CLAIM_WINDOW)).toBe(expected);
+      expect(mail.html.includes(CLAIM_WINDOW)).toBe(expected);
     }
   });
   it("replaces the deadline with the usage window on pass prizes", () => {
     for (const id of ["pack", "bundle", "day"]) {
       const mail = renderWinnerEmail({ ...base, prizeId: id });
       expect(mail.text).toContain(PASS_EXPIRY);
-      expect(mail.text).not.toContain(CLAIM_DEADLINE);
+      expect(mail.text).not.toContain(CLAIM_WINDOW);
       expect(mail.text).not.toContain("keep your prize held");
     }
   });
@@ -115,7 +114,6 @@ describe("winner email template", () => {
       expect(mail.text).toContain("within 30 days");
       expect(mail.text).toContain("transferable to someone else by request");
       expect(mail.text).toContain("next 90 days");
-      expect(mail.text).not.toContain(CLAIM_DEADLINE);
     }
   });
   it("copies the law firm on the Zannes prizes and nothing else", () => {

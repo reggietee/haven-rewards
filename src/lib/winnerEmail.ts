@@ -9,8 +9,6 @@ interface Redemption {
   link?: { label: string; url: string };
   /** The prize states its own expiry, so the 30-day claim deadline is left off. */
   ownExpiry?: boolean;
-  /** Replaces the default dated deadline sentence. */
-  deadline?: string;
   /** Fulfilment partner copied on this prize only. Server-side, never client-supplied. */
   cc?: string;
 }
@@ -20,9 +18,9 @@ const TOUR = {
 };
 const tourClaim = (period: string, plural = false) =>
   `Pick any time that suits you on our tour calendar and come see the space. We will go through the member agreement while you are here. No payment details are needed, and your ${period} ${plural ? "do" : "does"} not start until the day you first come in to work, so nothing is ticking away while we find a time.`;
-/** Three months from the send date. Update alongside CLAIM_DEADLINE before a much later send. */
+/** Three months from the send date. Update before a much later send. */
 export const PASS_EXPIRY = "January 8, 2027";
-const passWindow = `Coworking days run Monday to Friday, 9 a.m. to 6 p.m., and are good until ${PASS_EXPIRY}. Book each day in advance.`;
+const passWindow = `Day passes can be used Monday to Friday, 9 a.m. to 6 p.m., and are good until ${PASS_EXPIRY}. Book each day in advance.`;
 export const REDEMPTIONS: Record<string, Redemption> = {
   "full-3": {
     route: "approval",
@@ -42,7 +40,7 @@ export const REDEMPTIONS: Record<string, Redemption> = {
   address: {
     route: "booking",
     claim:
-      "Reply to this email and we will set up a time to sit down and talk through your business and what you need the address for. We will go over the identification and business documents required when we meet.",
+      "Reply to this email and we will set up a time to sit down and talk through your business and what you need the address for. We will go over the identification and business documents required when we meet. If you do not have a business that needs an address, the prize is transferable to someone else by request.",
   },
   passport: {
     route: "partner",
@@ -54,8 +52,6 @@ export const REDEMPTIONS: Record<string, Redemption> = {
     claim:
       "Zannes Law Firm is copied on this email. They run a short conflict check first, then apply your gift card toward business legal services. If you do not need the service within the next 90 days, the prize is transferable to someone else by request.",
     note: "Subject to Zannes Law Firm's conflict check and engagement terms. No lawyer-client relationship exists unless the firm confirms it in writing.",
-    deadline:
-      "Please let us know within 30 days so we can keep your prize held for you.",
     cc: "hello@zanneslaw.com",
   },
   "legal-call": {
@@ -63,8 +59,6 @@ export const REDEMPTIONS: Record<string, Redemption> = {
     claim:
       "Zannes Law Firm is copied on this email. They run a short conflict check first, then you can book your 45 minutes directly with them. If you do not need the service within the next 90 days, the prize is transferable to someone else by request.",
     note: "Subject to Zannes Law Firm's conflict check and engagement terms. No lawyer-client relationship exists unless the firm confirms it in writing.",
-    deadline:
-      "Please let us know within 30 days so we can keep your prize held for you.",
     cc: "hello@zanneslaw.com",
   },
   audit: {
@@ -110,11 +104,11 @@ export interface Rendered {
   html: string;
 }
 export const REPLY_TO = "reggie@havenworkspace.ca";
-/** Thirty days from the notice date, per the published rules. Update before a much later send. */
-export const CLAIM_DEADLINE = "November 6, 2026";
+/** Relative on purpose: the rules run 30 days from the notice, and a fixed date goes stale. */
+export const CLAIM_WINDOW = "within 30 days of this email";
 const LOGO = "https://spin.havenworkspace.ca/brand/haven-logo-2-dk.png";
 const deadlineLine = (booked: boolean) =>
-  `Please ${booked ? "book" : "let us know"} by ${CLAIM_DEADLINE} so we can keep your prize held for you.`;
+  `Please ${booked ? "book" : "let us know"} ${CLAIM_WINDOW} so we can keep your prize held for you.`;
 const SIGNATURE =
   "The Haven Team\nHaven Workspace\n242 Mary St, Unit 8, Niagara-on-the-Lake, ON";
 const FOOTER =
@@ -140,9 +134,7 @@ export function renderWinnerEmail(r: Recipient): Rendered {
   const redemption = REDEMPTIONS[r.prizeId];
   if (!prize || !redemption) throw new Error("Unknown prize.");
   const name = firstName(r.name);
-  const deadline = redemption.ownExpiry
-    ? ""
-    : (redemption.deadline ?? deadlineLine(!!redemption.link));
+  const deadline = redemption.ownExpiry ? "" : deadlineLine(!!redemption.link);
   const subject = `You won the ${prize.displayName} at Haven Demo Day`;
   const lines = [
     `Hi ${name},`,
