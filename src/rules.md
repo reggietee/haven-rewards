@@ -4,21 +4,23 @@
 
 The “Spin Your Way to Haven” contest (the **Contest**) is sponsored and administered by Haven Workspace (the **Sponsor**), 242 Mary St, Unit 8, Niagara-on-the-Lake, Ontario, Canada. Questions about the Contest may be sent to info@havenworkspace.ca.
 
-Certain prizes are supplied by Zannes Law Firm and the Niagara Falls Innovation Hub. Those organizations are not responsible for administering the Contest except as expressly stated in these Rules.
+Certain prizes are supplied by Zannes Law Firm and the Niagara Falls Rankin Innovation Hub. Those organizations are not responsible for administering the Contest except as expressly stated in these Rules.
+
+**Amended October 9, 2026.** The Niagara Falls Innovation Hub was renamed the Niagara Falls Rankin Innovation Hub on September 22, 2026. References to that organization now use its current name; the organization and the prizes it supplies are unchanged. The prize table below reproduces the catalogue exactly as it was published on the contest device, so it keeps the naming shown to entrants.
 
 ### 2. Contest period and location
 
 The Contest opens for early entry at 12:00 a.m. Eastern Time on September 22, 2026 and closes at 7:00 p.m. Eastern Time on September 22, 2026 (the **Contest Period**).
 
-Entry is available in person at the Haven Workspace booth at NFIH Demo Day, 4551 Zimmerman Avenue, Niagara Falls, Ontario. The Sponsor's contest device is the official timekeeping device. No entries or spins will be accepted after the Contest closes.
+Entry is available in person at the Haven Workspace booth at NFRIH Demo Day, 4551 Zimmerman Avenue, Niagara Falls, Ontario. The Sponsor's contest device is the official timekeeping device. No entries or spins will be accepted after the Contest closes.
 
 ### 3. Eligibility
 
-The Contest is open to legal residents of Canada who are 18 years of age or older when they enter and who attend NFIH Demo Day in person.
+The Contest is open to legal residents of Canada who are 18 years of age or older when they enter and who attend NFRIH Demo Day in person.
 
 The Contest is not open to:
 
-- owners, officers, employees, representatives, or contractors directly involved in administering the Contest for Haven Workspace, Zannes Law Firm, or the Niagara Falls Innovation Hub;
+- owners, officers, employees, representatives, or contractors directly involved in administering the Contest for Haven Workspace, Zannes Law Firm, or the Niagara Falls Rankin Innovation Hub;
 - members of the immediate household of any person listed above;
 - anyone whose Haven Workspace membership has previously been cancelled by Haven Workspace or who has previously been refused access to Haven Workspace; or
 - anyone otherwise ineligible under applicable law.

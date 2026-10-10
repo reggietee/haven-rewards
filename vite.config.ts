@@ -22,7 +22,7 @@ export default defineConfig({
       manifest: {
         name: "Spin Your Way to Haven",
         short_name: "Haven Spin",
-        description: "Haven Workspace · NFIH Demo Day 2026",
+        description: "Haven Workspace · NFRIH Demo Day 2026",
         theme_color: "#100f20",
         background_color: "#100f20",
         display: "standalone",
