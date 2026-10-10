@@ -45,7 +45,7 @@ export const REDEMPTIONS: Record<string, Redemption> = {
   passport: {
     route: "partner",
     claim:
-      "Reply to this email. The Passport runs with the Niagara Falls Innovation Hub, and we will coordinate the details with them and come back to you.",
+      "Reply to this email. The Passport runs with the Niagara Falls Rankin Innovation Hub, and we will coordinate the details with them and come back to you.",
   },
   "legal-card": {
     route: "partner",
@@ -139,7 +139,7 @@ export function renderWinnerEmail(r: Recipient): Rendered {
   const lines = [
     `Hi ${name},`,
     "",
-    "It was great meeting you at Demo Day at the Niagara Falls Innovation Hub. Thanks for spinning the wheel, and congratulations, you won:",
+    "It was great meeting you at Demo Day at the Niagara Falls Rankin Innovation Hub. Thanks for spinning the wheel, and congratulations, you won:",
     "",
     `${prize.displayName} — valued at ${currency(prize.value)}`,
     `Your reference code: ${r.code}`,
@@ -176,9 +176,9 @@ export function renderWinnerEmail(r: Recipient): Rendered {
 <div style="font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:${cream};font-weight:600">Haven Workspace</div>
 </td></tr>
 <tr><td style="background:${card};padding:36px 32px 8px">
-<p style="margin:0 0 22px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:${muted}">Demo Day · Niagara Falls Innovation Hub</p>
+<p style="margin:0 0 22px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:${muted}">Demo Day · Niagara Falls Rankin Innovation Hub</p>
 ${body(`Hi ${escape(name)},`)}
-${body("It was great meeting you at Demo Day at the Niagara Falls Innovation Hub. Thanks for spinning the wheel, and congratulations, you won:")}
+${body("It was great meeting you at Demo Day at the Niagara Falls Rankin Innovation Hub. Thanks for spinning the wheel, and congratulations, you won:")}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px"><tr>
 <td style="background:${cream};border-left:3px solid ${gold};border-radius:0 10px 10px 0;padding:22px 24px">
 <div style="font-size:20px;font-weight:700;line-height:1.3;color:${ink}">${escape(prize.displayName)}</div>

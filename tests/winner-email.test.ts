@@ -87,6 +87,33 @@ describe("winner email template", () => {
       expect(mail.text).toContain("member agreement");
     }
   });
+  it("names the hub by its current name everywhere it appears", () => {
+    for (const prize of PRIZES) {
+      const mail = renderWinnerEmail({ ...base, prizeId: prize.id });
+      for (const part of [mail.text, mail.html]) {
+        expect(part).toContain("Niagara Falls Rankin Innovation Hub");
+        expect(part).not.toMatch(/Niagara Falls Innovation Hub/);
+        expect(part).not.toContain("Ryerson");
+      }
+    }
+  });
+  it("never quotes a fixed claim date that could go stale", () => {
+    for (const prize of PRIZES) {
+      const mail = renderWinnerEmail({ ...base, prizeId: prize.id });
+      for (const part of [mail.text, mail.html])
+        expect(part).not.toMatch(/November \d/);
+    }
+  });
+  it("offers the mailing address to someone else when there is no business", () => {
+    expect(renderWinnerEmail({ ...base, prizeId: "address" }).text).toContain(
+      "transferable to someone else by request",
+    );
+  });
+  it("limits the pass to weekdays without implying Haven shuts at weekends", () => {
+    const text = renderWinnerEmail({ ...base, prizeId: "pack" }).text;
+    expect(text).toContain("Day passes can be used Monday to Friday");
+    expect(text).not.toContain("Coworking days run");
+  });
   it("rejects a prize that is not in the catalogue", () => {
     expect(() => renderWinnerEmail({ ...base, prizeId: "made-up" })).toThrow();
   });
