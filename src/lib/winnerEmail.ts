@@ -135,7 +135,7 @@ export function renderWinnerEmail(r: Recipient): Rendered {
   if (!prize || !redemption) throw new Error("Unknown prize.");
   const name = firstName(r.name);
   const deadline = redemption.ownExpiry ? "" : deadlineLine(!!redemption.link);
-  const subject = `You won the ${prize.displayName} at Haven Demo Day`;
+  const subject = `You won the ${prize.displayName} at NFRIH Demo Day`;
   const lines = [
     `Hi ${name},`,
     "",

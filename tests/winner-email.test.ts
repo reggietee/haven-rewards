@@ -26,7 +26,10 @@ describe("winner email template", () => {
   it("renders each prize with its name, value, code and reply address", () => {
     for (const prize of PRIZES) {
       const mail = renderWinnerEmail({ ...base, prizeId: prize.id });
-      expect(mail.subject).toContain(prize.displayName);
+      expect(mail.subject).toBe(
+        `You won the ${prize.displayName} at NFRIH Demo Day`,
+      );
+      expect(mail.subject).not.toContain("Haven Demo Day");
       for (const part of [mail.text, mail.html]) {
         expect(part).toContain(prize.displayName);
         expect(part).toContain(base.code);
